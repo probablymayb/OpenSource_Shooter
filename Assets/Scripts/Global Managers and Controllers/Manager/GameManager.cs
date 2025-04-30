@@ -8,6 +8,7 @@ public class GameManager : Singleton<GameManager>
     public static UIManager UI { get; } = new UIManager();
     public static SceneManager Scene { get; } = new SceneManager();
     public static ResourceManager Resource { get; } = new ResourceManager();
+    public static PhotonManager Photon { get; } = new PhotonManager();
 
     private bool _isDestroyManager;
 
@@ -23,6 +24,7 @@ public class GameManager : Singleton<GameManager>
             UI,
             Scene,
             Resource,
+            Photon,
         };
 
         foreach(var manager in managers)
@@ -36,6 +38,7 @@ public class GameManager : Singleton<GameManager>
         Scene?.Release();
         UI?.Release();
         Resource?.Release();
+        Photon?.Release();
     }
 
     private void DestroyManager()
