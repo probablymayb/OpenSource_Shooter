@@ -275,7 +275,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 992921506594633912}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: -5885870949829907944}
+        m_MethodName: OnClickMatchingStartBtn
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &7448975257312923298
 GameObject:
   m_ObjectHideFlags: 0
@@ -523,6 +534,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 520f7c9bd56435b4aaea343cbc8af2d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _matchStartBtn: {fileID: 6849126017289956647}
 --- !u!1 &7448975257535052312
 GameObject:
   m_ObjectHideFlags: 0
