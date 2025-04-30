@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class MatchingPopupController : MonoBehaviour, IPopupPresenter
 {
-    [SerializeField] private Button matchStartBtn;
+    [SerializeField] private Button _matchStartBtn;
 
     public virtual void ShowView()
     {
@@ -17,5 +17,9 @@ public class MatchingPopupController : MonoBehaviour, IPopupPresenter
         gameObject.SetActive(false);
     }
 
+    public void OnClickMatchingStartBtn()
+    {
+        GameManager.Photon.StartRandomMatch();
+    }
 
 }
