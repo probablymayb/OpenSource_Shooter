@@ -1,10 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIController : MonoBehaviour
 {
-    public float Progress { get; private set; }
+    //public float Progress { get; private set; }
 
     private const string matchPopupName = "MatchingPopup";
 
