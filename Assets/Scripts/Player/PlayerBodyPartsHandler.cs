@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Photon.Pun;
+using UnityEngine;
 
 /// <summary>
 /// Controls the behaviour of the player's body based on MouseInput.vectorFromPlayerToMouseWorldPos.
@@ -41,6 +42,8 @@ public class PlayerBodyPartsHandler : MonoBehaviour
 
     private enum Direction { Left, Right }
 
+    private PhotonView photonView;
+
     private void Awake()
     {
         // always start with right direction
@@ -48,10 +51,13 @@ public class PlayerBodyPartsHandler : MonoBehaviour
         TryGetComponent(out lookAtUpdater);
         TryGetComponent(out lookAtHandler);
         shoulderSecondary = FindObjectOfType<PlayerShoulderSecondary>();
+        photonView = GetComponent<PhotonView>();
     }
 
     private void Update()
     {
+        if (photonView == null || !photonView.IsMine) return;
+
         CheckIfMissingClasses();
 
         if (PauseController.isGamePaused)
