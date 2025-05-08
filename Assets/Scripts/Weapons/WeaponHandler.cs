@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static WeaponAnim_ShootProjectileCanCharge;
 
 /// <summary>
 /// This class is used as a bridge between the player and the weapons, everything that can be done with the 
@@ -32,6 +33,8 @@ public class WeaponHandler : MonoBehaviour
 
     public Weapon[] weapons;
 
+    public Animator animator;
+
     private Weapon currentWeapon;
     private int currentWeaponIndex;
     private bool isUsingPrimaryAction;
@@ -62,6 +65,7 @@ public class WeaponHandler : MonoBehaviour
     {
         CheckWeaponsAvailability();
         DisableAllWeapons();
+
         switch (mode)
         {
             case WeaponSwitchMode.Next:
@@ -76,12 +80,14 @@ public class WeaponHandler : MonoBehaviour
                 if (index >= 0 && index <= weapons.Length - 1)
                     currentWeaponIndex = index;
                 break;
-
-            default:
-                break;
         }
+
         currentWeapon = weapons[currentWeaponIndex];
         currentWeapon.gameObject.SetActive(true);
+
+        // 무기 전환 시 Animator 파라미터 설정
+        animator.SetInteger("WeaponType", currentWeaponIndex);  // ex. 0 = LaserRifle, 1 = AutoCharge 등
+        animator.SetInteger("WeaponAction", 0); // 초기화 (Idle)
     }
 
     /// <summary>
