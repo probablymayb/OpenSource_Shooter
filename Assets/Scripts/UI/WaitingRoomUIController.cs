@@ -33,7 +33,7 @@ public class WaitingRoomUIController : MonoBehaviour
 
         if (PhotonNetwork.IsMasterClient)
         {
-            PhotonNetwork.LoadLevel("InGameScene");
+            GameManager.Photon.StartBattle();
         }
     }
 }
