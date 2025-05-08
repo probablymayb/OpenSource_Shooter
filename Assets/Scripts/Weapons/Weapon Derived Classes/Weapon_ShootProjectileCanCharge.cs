@@ -97,52 +97,42 @@ public class Weapon_ShootProjectileCanCharge : Weapon
         if (primaryProjectile == null)
         {
             // Instantiate.
-            if (PhotonNetwork.InRoom)
-            {
-                string prefabName = basicProjectilePrefab.name;
-                GameObject bullet = PhotonNetwork.Instantiate("Projectiles/" + prefabName, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
-                bullet.transform.SetParent(projectileSpawnPoint);
-                primaryProjectile = bullet.GetComponent<Projectile>();
-
-                Debug.Log("총알 미리 생성!");
-            }
-            else
+            if (!PhotonNetwork.InRoom)
             {
                 primaryProjectile = Instantiate(basicProjectilePrefab, projectileSpawnPoint.position,
                 projectileSpawnPoint.rotation, projectileSpawnPoint).GetComponent<Projectile>();
-            }
 
-            // Disable to hide it while it's behind the weapon.
-            primaryProjectile.SetActive(false);
+                // Disable to hide it while it's behind the weapon.
+                primaryProjectile.SetActive(false);
+            }
         }
 
         // If there is no projectile, instantiate one and store its Projectile component.
         if (secondaryProjectile == null)
         {
             // Instantiate.
-            if (PhotonNetwork.InRoom)
-            {
-                string prefabName = chargedProjectilePrefab.name;
-                GameObject bullet = PhotonNetwork.Instantiate("Projectiles/" + prefabName, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
-                bullet.transform.SetParent(projectileSpawnPoint);
-                secondaryProjectile = bullet.GetComponent<Projectile>();
-
-                Debug.Log("두 번째 총알 미리 생성!");
-            }
-            else
+            if (!PhotonNetwork.InRoom)
             {
                 secondaryProjectile = Instantiate(chargedProjectilePrefab, projectileSpawnPoint.position,
                 projectileSpawnPoint.rotation, projectileSpawnPoint).GetComponent<Projectile>();
-            }
 
-            // Disable to hide it while it's behind the weapon.
-            secondaryProjectile.SetActive(false);
+                // Disable to hide it while it's behind the weapon.
+                secondaryProjectile.SetActive(false);
+            }
         }
     }
 
     public override void PrimaryAction(bool value)
     {
         base.PrimaryAction(value);
+
+        if(primaryProjectile == null && canUse)
+        {
+            string prefabName = basicProjectilePrefab.name;
+            GameObject bullet = PhotonNetwork.Instantiate("Projectiles/" + prefabName, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+            bullet.transform.SetParent(projectileSpawnPoint);
+            primaryProjectile = bullet.GetComponent<Projectile>();
+        }
 
         // Can be executed only if there is a projectile available and canUse is true.
         if (primaryProjectile != null && canUse)
@@ -153,12 +143,12 @@ public class Weapon_ShootProjectileCanCharge : Weapon
             // Make the camera Shake.
             CameraShake.Shake(duration: 0.075f, shakeAmount: 0.1f, decreaseFactor: 3f);
 
+            // Call the method Fire on the projectile to launch it towards the crosshair direction.
+            bool isRight = PlayerBodyPartsHandler.isRightDirection;
             // Enable the projectile.
             primaryProjectile.SetActive(true);
 
-            // Call the method Fire on the projectile to launch it towards the crosshair direction.
-            bool isRight = PlayerBodyPartsHandler.isRightDirection;
-            if (PhotonNetwork.InRoom)
+            if (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame)
             {
                 primaryProjectile.Fire(isRight);
             }
@@ -194,7 +184,7 @@ public class Weapon_ShootProjectileCanCharge : Weapon
         }
 
         // We stop the code here if one of the needed variables is missing.
-        if ((secondaryProjectile == null || chargingPFX == null || chargingSFX == null))
+        if (!IsSecondaryDataAvailable())
         {
             Debug.LogWarning(gameObject.name + ": missing prefabs!");
             return;
@@ -203,6 +193,14 @@ public class Weapon_ShootProjectileCanCharge : Weapon
         // We make it true if the player is pressing the secondary action button or false if not.
         // When it's true, it activates the actions on the Update method of this class.
         isReceivingInput = value;
+    }
+
+    private bool IsSecondaryDataAvailable()
+    {
+        if (PhotonNetwork.InRoom)
+            return chargingPFX != null && chargingSFX != null;
+        else
+            return secondaryProjectile != null && chargingPFX != null && chargingSFX != null;
     }
 
     /// <summary>
@@ -260,12 +258,21 @@ public class Weapon_ShootProjectileCanCharge : Weapon
         // Make the camera Shake by a greater value.
         CameraShake.Shake(duration: 0.2f, shakeAmount: 1f, decreaseFactor: 3f);
 
+        // Call the method Fire on the projectile to launch it towards the crosshair direction.
+
+        bool isRight = PlayerBodyPartsHandler.isRightDirection;
         // Enable the projectile.
+        if (secondaryProjectile == null)
+        {
+            string prefabName = chargedProjectilePrefab.name;
+            GameObject bullet = PhotonNetwork.Instantiate("Projectiles/" + prefabName, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+            bullet.transform.SetParent(projectileSpawnPoint);
+            secondaryProjectile = bullet.GetComponent<Projectile>();
+        }
+
         secondaryProjectile.SetActive(true);
 
-        // Call the method Fire on the projectile to launch it towards the crosshair direction.
-        bool isRight = PlayerBodyPartsHandler.isRightDirection;
-        if (PhotonNetwork.InRoom)
+        if (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame)
         {
             secondaryProjectile.Fire(isRight);
         }

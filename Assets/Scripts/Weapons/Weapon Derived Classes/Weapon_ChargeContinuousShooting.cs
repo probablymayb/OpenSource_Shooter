@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Photon.Pun;
+using UnityEngine;
 
 /// <summary>
 /// This class has a unique action to do a continuous shooting (e.g. Continuous Laser Beam).
@@ -84,16 +85,28 @@ public class Weapon_ChargeContinuousShooting : Weapon
 
         if (primaryProjectile == null)
         {
-            primaryProjectile = Instantiate(basicProjectilePrefab, projectileSpawnPoint.position,
-            projectileSpawnPoint.rotation, projectileSpawnPoint).GetComponent<Projectile>();
-            primaryProjectile.SetActive(false);
+            // Instantiate.
+            if (!PhotonNetwork.InRoom)
+            {
+                primaryProjectile = Instantiate(basicProjectilePrefab, projectileSpawnPoint.position,
+                projectileSpawnPoint.rotation, projectileSpawnPoint).GetComponent<Projectile>();
+
+                // Disable to hide it while it's behind the weapon.
+                primaryProjectile.SetActive(false);
+            }
         }
 
         if (secondaryProjectile == null)
         {
-            secondaryProjectile = Instantiate(chargedProjectilePrefab, projectileSpawnPoint.position,
-            projectileSpawnPoint.rotation, projectileSpawnPoint).GetComponent<Projectile>();
-            secondaryProjectile.SetActive(false);
+            // Instantiate.
+            if (!PhotonNetwork.InRoom)
+            {
+                secondaryProjectile = Instantiate(chargedProjectilePrefab, projectileSpawnPoint.position,
+                projectileSpawnPoint.rotation, projectileSpawnPoint).GetComponent<Projectile>();
+
+                // Disable to hide it while it's behind the weapon.
+                secondaryProjectile.SetActive(false);
+            }
         }
     }
 
@@ -101,11 +114,30 @@ public class Weapon_ChargeContinuousShooting : Weapon
     {
         base.PrimaryAction(value);
 
+        if(primaryProjectile == null && canUse)
+        {
+            string prefabName = basicProjectilePrefab.name;
+            GameObject bullet = PhotonNetwork.Instantiate("Projectiles/" + prefabName, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+            bullet.transform.SetParent(projectileSpawnPoint);
+            primaryProjectile = bullet.GetComponent<Projectile>();
+        }
+
         if (primaryProjectile != null && canUse)
         {
+            bool isRight = PlayerBodyPartsHandler.isRightDirection;
             CameraShake.Shake(duration: 0.075f, shakeAmount: 0.1f, decreaseFactor: 3f);
+
             primaryProjectile.SetActive(true);
-            primaryProjectile.Fire();
+
+            if (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame)
+            {
+                primaryProjectile.Fire(isRight);
+            }
+            else
+            {
+                primaryProjectile.Fire();
+            }
+
             primaryProjectile = null;
             canUse = false;
         }
@@ -114,12 +146,20 @@ public class Weapon_ChargeContinuousShooting : Weapon
     public override void SecondaryAction(bool value)
     {
         base.SecondaryAction(value);
-        if (secondaryProjectile == null || chargingPFX == null || chargingSFX == null)
+        if (!IsSecondaryDataAvailable())
         {
             Debug.LogWarning(gameObject.name + ": missing prefabs!");
             return;
         }
         isReceivingInput = value;
+    }
+
+    private bool IsSecondaryDataAvailable()
+    {
+        if (PhotonNetwork.InRoom)
+            return chargingPFX != null && chargingSFX != null;
+        else
+            return secondaryProjectile != null && chargingPFX != null && chargingSFX != null;
     }
 
     private void OnChargingStart()
@@ -148,9 +188,28 @@ public class Weapon_ChargeContinuousShooting : Weapon
         isChargingStarted = false;
         chargingTime = 0.0f;
 
+        bool isRight = PlayerBodyPartsHandler.isRightDirection;
         CameraShake.Shake(duration: 0.2f, shakeAmount: 1f, decreaseFactor: 3f);
+
+        if(secondaryProjectile == null && canUse)
+        {
+            string prefabName = chargedProjectilePrefab.name;
+            GameObject bullet = PhotonNetwork.Instantiate("Projectiles/" + prefabName, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+            bullet.transform.SetParent(projectileSpawnPoint);
+            secondaryProjectile = bullet.GetComponent<Projectile>();
+        }
+
         secondaryProjectile.SetActive(true);
-        secondaryProjectile.Fire();
+
+        if (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame)
+        {
+            secondaryProjectile.Fire(isRight);
+        }
+        else
+        {
+            secondaryProjectile.Fire();
+        }
+        
         secondaryProjectile = null;
         chargingPFX.transform.localScale = Vector2.one;
         chargingPFX.SetActive(false);
