@@ -1,22 +1,14 @@
-﻿using UnityEngine;
+﻿using Photon.Pun;
+using UnityEngine;
 
 /// <summary>
 /// This class have public static input variables and methods that can be easily accessed by any other class.
 /// </summary>
 public class TadaInput : MonoBehaviour
 {
-    // --------------------------------------
-    // ----- 2D Isometric Shooter Study -----
-    // ----------- by Tadadosi --------------
-    // --------------------------------------
-    // ---- Support my work by following ----
-    // ---- https://twitter.com/tadadosi ----
-    // --------------------------------------
+    public static TadaInput Local { get; private set; }
 
-    [TextArea(2, 10)]
-    public string notes = "This class have public static input variables and methods that can be easily accessed by any other class.";
-
-    private readonly static bool debug = false;
+    [SerializeField] private Camera playerCamera;
 
     #region ------------------------------------------ PROPERTIES
 
@@ -37,11 +29,7 @@ public class TadaInput : MonoBehaviour
     public static Vector3 MousePixelPos { get { return _MousePixelPos; } private set { _MousePixelPos = value; } }
     private static Vector3 _MousePixelPos;
 
-    /// <summary>
-    /// Mouse position in world coordinates.
-    /// </summary>
-    public static Vector3 MouseWorldPos { get { return _MouseWorldPos; } private set { _MouseWorldPos = value; } }
-    private static Vector3 _MouseWorldPos;
+    public static Vector3 MouseWorldPos { get; private set; }
 
     #endregion
 
@@ -87,23 +75,33 @@ public class TadaInput : MonoBehaviour
 
     // To stop the mouse scrollwheel from infinitely registering KeyUp.
     private bool isScrollWheelActive;
-
+    private PhotonView _photonView;
     #endregion
-
-    private Camera cam;
 
     #endregion
 
     private void Awake()
     {
-        cam = Camera.main;
+        _photonView = GetComponentInParent<PhotonView>();
+        if (_photonView != null && _photonView.IsMine)
+        {
+            Local = this;
+        }
+        else
+        {
+            this.enabled = false;
+        }
         InitializeInputArrays();
     }
 
     private void Update()
     {
-        #region ------------------------------------------ STORE MOUSE PROPERTIES
+        UpdateMouseInputs();
+        UpdateKeyboardInputs();
+    }
 
+    private void UpdateMouseInputs()
+    {
         if (_MouseInput.sqrMagnitude > 0)
             if (!_isMouseActive)
                 _isMouseActive = true;
@@ -111,30 +109,25 @@ public class TadaInput : MonoBehaviour
         if (_AimAxisRawInput.sqrMagnitude > 0)
             if (_isMouseActive)
                 _isMouseActive = false;
-
         _MouseInput = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
         if (_MouseInput.magnitude > 1)
             _MouseInput *= (100f / _MouseInput.magnitude) / 100f;
 
         _MousePixelPos = Input.mousePosition;
         _MousePixelPos.z = 20f;
-        _MouseWorldPos = cam.ScreenToWorldPoint(_MousePixelPos);
-        _MouseWorldPos.z = 0f;
 
-        #endregion
+        Vector3 worldPos = playerCamera.ScreenToWorldPoint(_MousePixelPos);
+        worldPos.z = 0f;
+        MouseWorldPos = worldPos;
+    }
 
-        #region ------------------------------------------ KEYBOARD AND JOYSTICK INPUTS
-
+    private void UpdateKeyboardInputs()
+    {
         _MoveAxisSmoothInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-
-        // NOTE: I should add this axis clamping to a Utility class.
-        // Clamp axis magnitude to have a value that doesn't go higher than 1 if it's a diagonal vector.
         if (_MoveAxisSmoothInput.magnitude > 1)
-            _MoveAxisSmoothInput *= (100f / _MoveAxisSmoothInput.magnitude)/100f;
+            _MoveAxisSmoothInput *= (100f / _MoveAxisSmoothInput.magnitude) / 100f;
 
         _MoveAxisRawInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-
-        // Clamp axis magnitude to have a value that doesn't go higher than 1 if it's a diagonal vector.
         if (_MoveAxisRawInput.magnitude > 1)
             _MoveAxisRawInput *= (100f / _MoveAxisRawInput.magnitude) / 100f;
 
@@ -154,15 +147,8 @@ public class TadaInput : MonoBehaviour
         if (_AimAxisRawInput.magnitude > 1)
             _AimAxisRawInput *= (100f / _AimAxisRawInput.magnitude) / 100f;
 
-        #region ------------------------------------------ STORE CURRENT AXIS AS KEYS
-
-        // Xbox 360 Inputs. I'm not exactly sure, but I think this works for Xbox One controllers too.
         StoreCurrentAxisAsKeyType(ThisKey.Xbox360RightTrigger, Input.GetAxis("Xbox360RightTrigger"));
         StoreCurrentAxisAsKeyType(ThisKey.Xbox360LeftTrigger, Input.GetAxis("Xbox360LeftTrigger"));
-
-        #endregion
-
-        #endregion
 
         #region ------------------------------------------ STORE CURRENT KEY
 
@@ -288,7 +274,6 @@ public class TadaInput : MonoBehaviour
         }
 
         #endregion
-
         #endregion
     }
 
@@ -298,15 +283,9 @@ public class TadaInput : MonoBehaviour
     public static bool GetKey(ThisKey key)
     {
         int index = (int)key;
-
-        if (currentKeys[index] == key)
-        {
-            if (debug)
-                Debug.Log("Key: " + key.ToString());
-            return true;
-        }
-        return false;
+        return currentKeys[index] == key;
     }
+
 
     /// <summary>
     /// Returns true during the frame the user start pressing down the key identified by the key ThisKey enum parameter.
@@ -317,8 +296,6 @@ public class TadaInput : MonoBehaviour
         if (currentKeysDown[index] == key)
         {
             currentKeysDown[index] = ThisKey.None;
-            if (debug)
-                Debug.Log("KeyDown: " + key.ToString());
             return true;
         }
         return false;
@@ -333,8 +310,6 @@ public class TadaInput : MonoBehaviour
         if (currentKeysUp[index] == key)
         {
             currentKeysUp[index] = ThisKey.None;
-            if (debug)
-                Debug.Log("KeyUp: " + key.ToString());
             return true;
         }
         return false;
@@ -377,16 +352,16 @@ public class TadaInput : MonoBehaviour
     private static void StoreCurrentAxisAsKeyType(ThisKey key, float rawAxisValue)
     {
         int index = (int)key;
-        if (rawAxisValue > 0) 
+        if (rawAxisValue > 0)
         {
-            if (!currentAxisDown[index]) // DOWN
+            if (!currentAxisDown[index])
             {
                 currentAxisDown[index] = true;
                 StoreCurrentKeyDown(key);
             }
-            StoreCurrentKey(key); // HOLD
+            StoreCurrentKey(key);
         }
-        if (rawAxisValue == 0 && currentAxisDown[index]) // UP
+        if (rawAxisValue == 0 && currentAxisDown[index])
         {
             currentAxisDown[index] = false;
             StoreCurrentKeyUp(key);

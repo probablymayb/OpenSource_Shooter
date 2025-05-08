@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Photon.Pun;
+using UnityEngine;
 
 /// <summary>
 /// This class has a primary action to shoot projectiles based on a UseRate value
@@ -22,11 +23,15 @@ public class Weapon_ShootProjectileCanCharge : Weapon
 
     public GameObject basicProjectilePrefab;
     public GameObject chargedProjectilePrefab;
+
     public Transform projectileSpawnPoint;
     public GameObject chargingPFX;
     public SoundHandlerLocal chargingSFX;
 
-    private WeaponAnim_ShootProjectileCanCharge anim;
+    [SerializeField] private Animator animator;
+
+    private enum WeaponAction { Idle = 0, BasicShot = 1, Charging = 2, ChargedShot = 3 }
+
     private Projectile primaryProjectile;
     private Projectile secondaryProjectile;
     private bool isReceivingInput = false;
@@ -39,7 +44,6 @@ public class Weapon_ShootProjectileCanCharge : Weapon
     {
         base.Awake();
         useRateValues = new float[] { 0.125f, 0.05f };
-        TryGetComponent(out anim);
     }
 
     protected override void Update()
@@ -70,14 +74,14 @@ public class Weapon_ShootProjectileCanCharge : Weapon
     private void OnEnable()
     {
         SpawnProjectiles();
+        Debug.Log("총 쏘기 OnEnable");
     }
 
     protected override void OnCanUse()
     {
         base.OnCanUse();
         SpawnProjectiles();
-        if (anim != null)
-            anim.PlayAnimation(WeaponAnim_ShootProjectileCanCharge.Animation.Idle);
+        animator.SetInteger("WeaponAction", (int)WeaponAction.Idle);
     }
 
     private void SpawnProjectiles()
@@ -93,22 +97,28 @@ public class Weapon_ShootProjectileCanCharge : Weapon
         if (primaryProjectile == null)
         {
             // Instantiate.
-            primaryProjectile = Instantiate(basicProjectilePrefab, projectileSpawnPoint.position,
-            projectileSpawnPoint.rotation, projectileSpawnPoint).GetComponent<Projectile>();
+            if (!PhotonNetwork.InRoom)
+            {
+                primaryProjectile = Instantiate(basicProjectilePrefab, projectileSpawnPoint.position,
+                projectileSpawnPoint.rotation, projectileSpawnPoint).GetComponent<Projectile>();
 
-            // Disable to hide it while it's behind the weapon.
-            primaryProjectile.SetActive(false);
+                // Disable to hide it while it's behind the weapon.
+                primaryProjectile.SetActive(false);
+            }
         }
 
         // If there is no projectile, instantiate one and store its Projectile component.
         if (secondaryProjectile == null)
         {
             // Instantiate.
-            secondaryProjectile = Instantiate(chargedProjectilePrefab, projectileSpawnPoint.position,
-            projectileSpawnPoint.rotation, projectileSpawnPoint).GetComponent<Projectile>();
+            if (!PhotonNetwork.InRoom)
+            {
+                secondaryProjectile = Instantiate(chargedProjectilePrefab, projectileSpawnPoint.position,
+                projectileSpawnPoint.rotation, projectileSpawnPoint).GetComponent<Projectile>();
 
-            // Disable to hide it while it's behind the weapon.
-            secondaryProjectile.SetActive(false);
+                // Disable to hide it while it's behind the weapon.
+                secondaryProjectile.SetActive(false);
+            }
         }
     }
 
@@ -116,21 +126,36 @@ public class Weapon_ShootProjectileCanCharge : Weapon
     {
         base.PrimaryAction(value);
 
+        if(primaryProjectile == null && canUse)
+        {
+            string prefabName = basicProjectilePrefab.name;
+            GameObject bullet = PhotonNetwork.Instantiate("Projectiles/" + prefabName, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+            bullet.transform.SetParent(projectileSpawnPoint);
+            primaryProjectile = bullet.GetComponent<Projectile>();
+        }
+
         // Can be executed only if there is a projectile available and canUse is true.
         if (primaryProjectile != null && canUse)
         {
             // Play the basic animation if WeaponAnim_ShootProjectileCanCharge is available.
-            if (anim != null)
-                anim.PlayAnimation(WeaponAnim_ShootProjectileCanCharge.Animation.BasicShot);
+            animator.SetInteger("WeaponAction", (int)WeaponAction.BasicShot);
 
             // Make the camera Shake.
             CameraShake.Shake(duration: 0.075f, shakeAmount: 0.1f, decreaseFactor: 3f);
 
+            // Call the method Fire on the projectile to launch it towards the crosshair direction.
+            bool isRight = PlayerBodyPartsHandler.isRightDirection;
             // Enable the projectile.
             primaryProjectile.SetActive(true);
 
-            // Call the method Fire on the projectile to launch it towards the crosshair direction.
-            primaryProjectile.Fire();
+            if (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame)
+            {
+                primaryProjectile.Fire(isRight);
+            }
+            else
+            {
+                primaryProjectile.Fire();
+            }
 
             // We make it null to give room to a new instantiated projectile.
             primaryProjectile = null;
@@ -159,7 +184,7 @@ public class Weapon_ShootProjectileCanCharge : Weapon
         }
 
         // We stop the code here if one of the needed variables is missing.
-        if ((secondaryProjectile == null || chargingPFX == null || chargingSFX == null))
+        if (!IsSecondaryDataAvailable())
         {
             Debug.LogWarning(gameObject.name + ": missing prefabs!");
             return;
@@ -168,6 +193,14 @@ public class Weapon_ShootProjectileCanCharge : Weapon
         // We make it true if the player is pressing the secondary action button or false if not.
         // When it's true, it activates the actions on the Update method of this class.
         isReceivingInput = value;
+    }
+
+    private bool IsSecondaryDataAvailable()
+    {
+        if (PhotonNetwork.InRoom)
+            return chargingPFX != null && chargingSFX != null;
+        else
+            return secondaryProjectile != null && chargingPFX != null && chargingSFX != null;
     }
 
     /// <summary>
@@ -179,8 +212,7 @@ public class Weapon_ShootProjectileCanCharge : Weapon
         if (!isCharging)
         {
             // Play the charging animation if WeaponAnim_ShootProjectileCanCharge is available.
-            if (anim != null)
-                anim.PlayAnimation(WeaponAnim_ShootProjectileCanCharge.Animation.Charging);
+            animator.SetInteger("WeaponAction", (int)WeaponAction.Charging);
 
             // We set it to true to avoid calling this method more than once.
             isCharging = true;
@@ -212,8 +244,7 @@ public class Weapon_ShootProjectileCanCharge : Weapon
     private void OnChargingEnd()
     {
         // Play the charged shot animation if WeaponAnim_ShootProjectileCanCharge is available.
-        if (anim != null)
-            anim.PlayAnimation(WeaponAnim_ShootProjectileCanCharge.Animation.ChargedShot);
+        animator.SetInteger("WeaponAction", (int)WeaponAction.ChargedShot);
 
         // Set it to false to allow OnChargingStart to be called again.
         isCharging = false;
@@ -227,11 +258,28 @@ public class Weapon_ShootProjectileCanCharge : Weapon
         // Make the camera Shake by a greater value.
         CameraShake.Shake(duration: 0.2f, shakeAmount: 1f, decreaseFactor: 3f);
 
+        // Call the method Fire on the projectile to launch it towards the crosshair direction.
+
+        bool isRight = PlayerBodyPartsHandler.isRightDirection;
         // Enable the projectile.
+        if (secondaryProjectile == null)
+        {
+            string prefabName = chargedProjectilePrefab.name;
+            GameObject bullet = PhotonNetwork.Instantiate("Projectiles/" + prefabName, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+            bullet.transform.SetParent(projectileSpawnPoint);
+            secondaryProjectile = bullet.GetComponent<Projectile>();
+        }
+
         secondaryProjectile.SetActive(true);
 
-        // Call the method Fire on the projectile to launch it towards the crosshair direction.
-        secondaryProjectile.Fire();
+        if (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame)
+        {
+            secondaryProjectile.Fire(isRight);
+        }
+        else
+        {
+            secondaryProjectile.Fire();
+        }
 
         // Make it null to give room to a new instantiated projectile.
         secondaryProjectile = null;
@@ -250,8 +298,7 @@ public class Weapon_ShootProjectileCanCharge : Weapon
     private void OnChargeCancel()
     {
         // Return to Idle animation if WeaponAnim_ShootProjectileCanCharge is available.
-        if (anim != null)
-            anim.PlayAnimation(WeaponAnim_ShootProjectileCanCharge.Animation.Idle);
+        animator.SetInteger("WeaponAction", (int)WeaponAction.Idle);
 
         // Is set to false to allow OnChargingStart to be called again.
         isCharging = false;
