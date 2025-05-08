@@ -158,7 +158,7 @@ public class Projectile : MonoBehaviourPun
             impactCount++;
 
             PhotonNetwork.Instantiate("Particles/" + hitPFX.name, collision.ClosestPoint(transform.position), Quaternion.identity);
-            PhotonNetwork.Destroy(gameObject); // 🧨 Destroy 대신 사용
+            PhotonNetwork.Destroy(gameObject);
         }
 
         if (collision.CompareTag("Player"))
