@@ -10,9 +10,13 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IManager
     public string roomNamePrefix = "Room_";
     public byte maxPlayers = 2;
 
-    private const string waitingRoomSceneName = "WaitingRoomScene";
+    private const string _waitingRoomSceneName = "WaitingRoomScene";
+    private const string _IngameSceneName = "InGameScene";
+    public enum GamePhase { None, Matching, Waiting, InGame};
+    public static GamePhase _currentPhase = GamePhase.None;
 
     public static WaitingRoomPhotonManager WaitingRoom { get; } = new WaitingRoomPhotonManager();
+    public static InGamePhotonManager InGame { get; } = new InGamePhotonManager();
 
     public void Initialize()
     {
@@ -20,9 +24,9 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IManager
 
         //포톤에서 관리될 세부 포톤 클래스 매니저들 Initialize();
 
-        var photonManagers = new List<IManager>
+        var photonManagers = new List<IScenePhotonManager>
         {
-            WaitingRoom,
+            WaitingRoom, InGame,
         };
 
         foreach(var manager in photonManagers)
@@ -36,6 +40,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IManager
 
     }
 
+    #region 포톤 서버 연결 및 로비 입장
     /// <summary>
     /// 인터넷 연결 + 포톤 마스터 서버 접속
     /// </summary>
@@ -62,7 +67,9 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IManager
         Debug.Log("로비 입장 완료");
         // UI에서 매칭 버튼 활성화 등 처리
     }
+    #endregion
 
+    #region Matching
     /// <summary>
     /// 매칭 시작 버튼 클릭 시 호출
     /// </summary>
@@ -70,6 +77,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IManager
     {
         Debug.Log("랜덤 매칭 시도 중...");
         PhotonNetwork.JoinRandomRoom();
+        _currentPhase = GamePhase.Matching;
     }
 
     public override void OnJoinRandomFailed(short returnCode, string message)
@@ -84,7 +92,9 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IManager
     {
         Debug.Log($"룸 생성 성공: {PhotonNetwork.CurrentRoom.Name}");
     }
+    #endregion
 
+    #region Waiting 상태
     public override void OnJoinedRoom()
     {
         Debug.Log("룸 입장 성공");
@@ -92,7 +102,8 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IManager
         if (PhotonNetwork.CurrentRoom.PlayerCount == maxPlayers)
         {
             // 이미 다른 사람이 있어 바로 매칭 완료 → 대기방 씬 이동
-            PhotonNetwork.LoadLevel(waitingRoomSceneName);
+            _currentPhase = GamePhase.Waiting;
+            PhotonNetwork.LoadLevel(_waitingRoomSceneName);
         }
         else
         {
@@ -107,8 +118,18 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IManager
 
         if (PhotonNetwork.CurrentRoom.PlayerCount == maxPlayers)
         {
-            PhotonNetwork.LoadLevel(waitingRoomSceneName);
+            _currentPhase = GamePhase.Waiting;
+            PhotonNetwork.LoadLevel(_waitingRoomSceneName);
         }
+    }
+    #endregion
+
+    public void StartBattle()
+    {
+        _currentPhase = GamePhase.InGame;
+        PhotonNetwork.LoadLevel(_IngameSceneName);
+
+        Debug.Log("1:1 배틀 시작");
     }
 
     public override void OnDisconnected(DisconnectCause cause)
