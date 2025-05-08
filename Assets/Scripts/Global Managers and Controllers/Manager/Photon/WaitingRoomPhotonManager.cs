@@ -2,14 +2,13 @@
 using Photon.Pun;
 using Photon.Realtime;
 using ExitGames.Client.Photon;
-using UnityEngine.UI;
-using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks.Triggers;
 
 /// <summary>
 /// Photon 대기방에서 아바타 생성 및 준비 상태 동기화를 관리하는 매니저 클래스
 /// </summary>
-public class WaitingRoomPhotonManager : MonoBehaviourPunCallbacks, IManager
+public class WaitingRoomPhotonManager : MonoBehaviourPunCallbacks, IScenePhotonManager
 {
     [SerializeField] private WaitingRoomUIController waitingRoomUIController;
     [SerializeField] private Transform myAvatarParent;
@@ -19,28 +18,28 @@ public class WaitingRoomPhotonManager : MonoBehaviourPunCallbacks, IManager
     private const string READY_KEY = "IsReady";
     private bool _isReady = false;
 
-    /// <summary>
-    /// MonoBehaviour Awake: 버튼 리스너 등록 및 초기 아바타 생성
-    /// </summary>
     public void Awake()
     {
         waitingRoomUIController.ReadyButton.onClick.AddListener(OnReadyClicked);
-        InitializeAllPlayers();
+        InitializeSceneObject();
     }
 
+    /// <summary>
+    /// 버튼 리스너 등록 및 초기 아바타 생성
+    /// </summary>
     public void Initialize()
     {
-        
+
     }
 
     /// <summary>
     /// 현재 룸에 있는 모든 플레이어에 대해 아바타 생성
     /// </summary>
-    void InitializeAllPlayers()
+    public void InitializeSceneObject()
     {
         foreach (var player in PhotonNetwork.PlayerList)
         {
-            CreateAvatar(player);
+            CreateAvatarProfile(player);
         }
     }
 
@@ -48,7 +47,7 @@ public class WaitingRoomPhotonManager : MonoBehaviourPunCallbacks, IManager
     /// 비동기 아바타 생성 (프리팹 Addressables 로드)
     /// </summary>
     /// <param name="player">포톤서버의 플레이어에서 가져온 플레이어</param>
-    private async void CreateAvatar(Player player)
+    private async void CreateAvatarProfile(Player player)
     {
         Transform parent = player.IsLocal ? myAvatarParent : opponentAvatarParent;
 
@@ -84,6 +83,8 @@ public class WaitingRoomPhotonManager : MonoBehaviourPunCallbacks, IManager
     {
         _isReady = true;
 
+        waitingRoomUIController.ReadyButton.enabled = false;
+
         // 내 상태 저장
         var props = new Hashtable { { READY_KEY, true } };
         PhotonNetwork.LocalPlayer.SetCustomProperties(props);
@@ -109,7 +110,7 @@ public class WaitingRoomPhotonManager : MonoBehaviourPunCallbacks, IManager
         }
     }
 
-    void UpdatePlayerAvatar(Player player)
+    public void UpdatePlayerAvatar(Player player)
     {
         Transform parent = player.IsLocal ? myAvatarParent : opponentAvatarParent;
 
