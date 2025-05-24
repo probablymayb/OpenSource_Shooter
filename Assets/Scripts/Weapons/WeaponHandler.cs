@@ -163,4 +163,13 @@ public class WeaponHandler : MonoBehaviour
             }
         }
     }
+    public void ReloadCurrentWeapon()
+    {
+        if (currentWeapon != null)
+        {
+            currentWeapon.Reload();
+        }
+    }
+
+    //UI
 }

@@ -953,6 +953,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debug: 0
   _UseRate: 0
+  maxAmmo: 30
+  currentAmmo: 0
+  reloadTime: 2
+  infiniteAmmo: 0
   notes: This is a derived class from the base class Weapon. It has a primary action
     to shoot projectiles based on a UseRate value and a secondary action with a timer
     that after reaching its duration will shoot a secondary projectile.
@@ -1219,6 +1223,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debug: 0
   _UseRate: 0
+  maxAmmo: 30
+  currentAmmo: 30
+  reloadTime: 2
+  infiniteAmmo: 0
   notes: This is a derived class from the base class Weapon. It has a primary action
     to shoot projectiles based on a UseRate value and a secondary action with a timer
     that after reaching its duration will shoot a secondary projectile.
@@ -1377,7 +1385,7 @@ GameObject:
   - component: {fileID: 9174398276320178671}
   m_Layer: 8
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1584,6 +1592,7 @@ MonoBehaviour:
   - {fileID: 6910151398553193512}
   dashForce: 20
   dashSFXHandler: {fileID: 6910151397807286081}
+  dashCooldown: 2
 --- !u!114 &6910151397428682142
 MonoBehaviour:
   m_ObjectHideFlags: 0

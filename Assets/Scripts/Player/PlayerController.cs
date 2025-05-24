@@ -100,6 +100,13 @@ public class PlayerController : MonoBehaviour
             _WeaponHandler.UseWeapon(WeaponHandler.ActionType.Secondary, false);
         #endregion
 
+        #region ---------------------------- RELOAD
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            _WeaponHandler.ReloadCurrentWeapon();
+        }
+        #endregion
+
         #region ---------------------------- WEAPON USE RATE
         if (TadaInput.GetKeyDown(TadaInput.ThisKey.NextUseRate))
             _WeaponHandler.SwitchUseRate(Weapon.SwitchUseRateType.Next);
