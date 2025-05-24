@@ -59,7 +59,7 @@ public class Weapon : MonoBehaviour
 
     public virtual void SwitchUseRate(SwitchUseRateType type, int index = 0)
     {
-        if (useRateValues.Length == 0)
+        if (useRateValues == null || useRateValues.Length == 0)
         {
             Debug.LogWarning(gameObject.name + ": Need to add at least one UseRate value!");
             return;

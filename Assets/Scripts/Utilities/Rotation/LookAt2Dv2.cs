@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Photon.Pun;
 
 /// <summary>
 /// New v2. The gameobject that has this component attached will instantly rotate to make its x or y axis look 
@@ -6,24 +7,14 @@
 /// inverted by checking isFlipAxis. Also there is an option to disable local update if a linked control is 
 /// needed. It can also use a smooth rotation by enabling isSmoothRotationEnable.
 /// </summary>
-public class LookAt2Dv2 : MonoBehaviour
+public class LookAt2Dv2 : MonoBehaviour, IPunObservable
 {
-    // --------------------------------------
-    // ----- 2D Isometric Shooter Study -----
-    // ----------- by Tadadosi --------------
-    // --------------------------------------
-    // ---- Support my work by following ----
-    // ---- https://twitter.com/tadadosi ----
-    // --------------------------------------
-
     [TextArea(4, 10)]
     public string notes = "New v2. The gameobject that has this component attached will instantly rotate to make its x or y axis look " +
         "towards the assigned target or towards mouse world position if a exposed enum is selected. The direction can be inverted by " +
         "checking isFlipAxis. Also there is an option to disable local update if a linked control is needed. It can also use a " +
         "smooth rotation by enabling isSmoothRotationEnable.";
 
-    // TargetTransform: Look at the gameobject Transform from the public variable targetTransform.
-    // MouseWorldPosition: Look at the mouse world position stored by the TadaInput class.
     public enum LookAtTarget { TargetTransform, MouseWorldPosition }
     [SerializeField] private LookAtTarget lookAtTarget = LookAtTarget.TargetTransform;
 
@@ -57,22 +48,37 @@ public class LookAt2Dv2 : MonoBehaviour
 
     private Vector3 targetPosition;
     private Vector3 direction;
-    private Vector3 upwardAxis; 
+    private Vector3 upwardAxis;
+
+    private PhotonView photonView;
+
+    private void Awake()
+    {
+        photonView = GetComponent<PhotonView>();
+    }
 
     private void Update()
     {
         if (!isUpdateCalledLocally)
             return;
-        UpdateLookAt();
+
+        // 내 로컬 오브젝트일 때만 회전 계산
+        if (photonView != null && photonView.IsMine)
+        {
+            UpdateLookAt();
+        }
     }
 
     public void UpdateLookAt()
     {
         Vector3 myPosition = transform.position;
 
+        // 대상 위치 계산
         if (lookAtTarget == LookAtTarget.MouseWorldPosition)
+        {
             targetPosition = TadaInput.MouseWorldPos;
-        else if ((lookAtTarget == LookAtTarget.TargetTransform))
+        }
+        else if (lookAtTarget == LookAtTarget.TargetTransform)
         {
             if (targetTransform == null)
             {
@@ -82,61 +88,43 @@ public class LookAt2Dv2 : MonoBehaviour
             targetPosition = targetTransform.position;
         }
 
-        // Ensure there is no 3D rotation by aligning Z position
+        // Z 위치 보정 (2D 기준)
         targetPosition.z = myPosition.z;
 
-        // Vector from this object towards the target position
+        // 회전 방향 벡터 계산
         direction = (targetPosition - myPosition).normalized;
 
+        // 축에 따라 기준 벡터 계산
         switch (axis)
         {
             case Axis.X:
-
-                if (!isFlipAxis)
-                {
-                    // Rotate direction by 90 degrees around the Z axis
-                    upwardAxis = Quaternion.Euler(0, 0, 90 + offsetLookAtAngle) * direction;
-                }
-                else
-                {
-                    // Rotate direction by -90 degrees around the Z axis
-                    upwardAxis = Quaternion.Euler(0, 0, -90 + offsetLookAtAngle) * direction;
-                }
+                upwardAxis = Quaternion.Euler(0, 0, isFlipAxis ? -90 + offsetLookAtAngle : 90 + offsetLookAtAngle) * direction;
                 break;
 
             case Axis.Y:
-
-                if (!isFlipAxis)
-                    upwardAxis = direction;
-                else
-                    upwardAxis = -direction;
-                break;
-
-            default:
+                upwardAxis = isFlipAxis ? -direction : direction;
                 break;
         }
 
-        // Get the rotation that points the Z axis forward, and the X or Y axis 90° away from the target
-        // (resulting in the Y or X axis facing the target).
-        Quaternion targetRotation = Quaternion.LookRotation(forward: Vector3.forward, upwards: upwardAxis);
+        // 회전 계산
+        Quaternion targetRotation = Quaternion.LookRotation(Vector3.forward, upwardAxis);
 
         if (debug)
+        {
             Debug.DrawLine(transform.position, targetPosition, debugColor);
+        }
 
         if (!isSmoothRotationEnable)
         {
-            // Update the rotation if it's inside the maxAngle limits.
             if (Quaternion.Angle(Quaternion.identity, targetRotation) < maxAngle)
                 transform.rotation = targetRotation;
-            return;
         }
-
-        // Smooth rotation.
-        Quaternion rotation = Quaternion.Lerp(transform.rotation, targetRotation, turnRate * Time.deltaTime);
-
-        // Update the rotation if it's inside the maxAngle limits.
-        if (Quaternion.Angle(Quaternion.identity, rotation) < maxAngle)
-            transform.rotation = rotation;
+        else
+        {
+            Quaternion rotation = Quaternion.Lerp(transform.rotation, targetRotation, turnRate * Time.deltaTime);
+            if (Quaternion.Angle(Quaternion.identity, rotation) < maxAngle)
+                transform.rotation = rotation;
+        }
     }
 
     public void SwitchToTarget(LookAtTarget target)
@@ -147,5 +135,21 @@ public class LookAt2Dv2 : MonoBehaviour
     public void SetOffsetAngle(float value)
     {
         offsetLookAtAngle = value;
+    }
+
+    // 🔄 회전 동기화
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            // 내 회전값 전송
+            stream.SendNext(transform.rotation);
+        }
+        else
+        {
+            // 다른 유저의 회전값 수신
+            Quaternion receivedRotation = (Quaternion)stream.ReceiveNext();
+            transform.rotation = receivedRotation;
+        }
     }
 }

@@ -6,9 +6,17 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Level_00.unity
+    path: Assets/Scenes/LobbyScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
-    path: Assets/Scenes/Test.unity
-    guid: 412a73352d067814e991b67800b11c36
-  m_configObjects: {}
+    path: Assets/Scenes/WaitingRoomScene.unity
+    guid: c62ee35479215c446af13829c74468d6
+  - enabled: 1
+    path: Assets/Scenes/InGameScene.unity
+    guid: 223b4af60cb3dc84f91e1095e094ea1e
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
+  m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: e65aade406e6e0e4d8a37b16055edf22,
+      type: 2}

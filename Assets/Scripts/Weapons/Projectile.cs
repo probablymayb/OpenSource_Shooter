@@ -1,10 +1,13 @@
-﻿using UnityEngine;
+﻿using Photon.Pun;
+using UnityEngine;
+using Cysharp.Threading.Tasks;
+using System;
 
 /// <summary>
 /// To shoot a projectile towards the current body direction using Transform.Translate
 /// and a public speed variable. It also checks for 2D trigger collisions.
 /// </summary>
-public class Projectile : MonoBehaviour
+public class Projectile : MonoBehaviourPun
 {
     // --------------------------------------
     // - 2D TopDown Isometric Shooter Study -
@@ -56,10 +59,19 @@ public class Projectile : MonoBehaviour
 
     private void Update()
     {
-        // If Fire() is called this becomes true and Travel() gets updated until this projectile gets destroyed.
-        if (hasLaunched)
-            Travel();
-        //Debug.DrawRay(transform.position, transform.up * 30f, Color.red);
+        // 내 총알일 때만 이동
+        if (PhotonNetwork.InRoom)
+        {
+            if (!photonView.IsMine) return;
+
+            if (hasLaunched)
+                Travel();
+        }
+        else
+        {
+            if (hasLaunched)
+                Travel();
+        }
     }
     #endregion
 
@@ -71,6 +83,39 @@ public class Projectile : MonoBehaviour
     public void SetActive(bool value)
     {
         _Renderer.enabled = _Collider.enabled = value;
+    }
+
+    public void Fire(bool isRight)
+    {
+        photonView.RPC("RPC_Fire", RpcTarget.All, isRight);
+    }
+
+    [PunRPC]
+    private void RPC_Fire(bool isRight)
+    {
+        hasLaunched = true;
+        travelDirection = isRight ? Vector3.right : -Vector3.right;
+        transform.parent = null;
+        _Sfx?.PlaySound(0);
+
+        //주의: IsMine인 쪽만 Destroy() 예약
+        if (photonView.IsMine)
+            DestroyAfterLifetimeAsync().Forget();
+    }
+
+    private async UniTaskVoid DestroyAfterLifetimeAsync()
+    {
+        try
+        {
+            await UniTask.Delay(TimeSpan.FromSeconds(LifeTime));
+
+            if (photonView != null && photonView.IsMine)
+                PhotonNetwork.Destroy(gameObject);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"[Projectile] DestroyAfterLifetimeAsync 예외 발생: {e.Message}");
+        }
     }
 
     /// <summary>
@@ -105,20 +150,26 @@ public class Projectile : MonoBehaviour
     #region ---------------------------- COLLISIONS
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // Used to break the method at this point if it already had an impact.
-        if (impactCount > 0)
+        if (!photonView.IsMine || impactCount > 0)
             return;
 
         if (collision.CompareTag("Wall"))
         {
-            // Add +1 to the inpact count.
             impactCount++;
 
-            // Spawn the impact visual effect.
-            Instantiate(hitPFX, collision.ClosestPoint(transform.position), Quaternion.identity);
+            PhotonNetwork.Instantiate("Particles/" + hitPFX.name, collision.ClosestPoint(transform.position), Quaternion.identity);
+            PhotonNetwork.Destroy(gameObject);
+        }
 
-            // Destroy this gameobject (this happens in the next frame after all the actions of this method are executed).
-            Destroy(gameObject);
+        if (collision.CompareTag("Player"))
+        {
+            PhotonView targetView = collision.GetComponent<PhotonView>();
+            if (targetView != null && !targetView.IsMine)
+            {
+                targetView.RPC("TakeDamage", targetView.Owner, 10); // 피해 전달
+                PhotonNetwork.Instantiate("Particles/" + hitPFX.name, transform.position, Quaternion.identity);
+                PhotonNetwork.Destroy(gameObject);
+            }
         }
     }
     #endregion
