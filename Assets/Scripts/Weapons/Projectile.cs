@@ -46,15 +46,37 @@ public class Projectile : MonoBehaviourPun
         TryGetComponent(out _Sfx);
         TryGetComponent(out _Renderer);
         TryGetComponent(out _Collider);
+
+            if (_Collider == null)
+            {
+                _Collider = gameObject.AddComponent<BoxCollider2D>();
+                _Collider.isTrigger = true;
+                // 크기 설정
+                _Collider.size = new Vector2(0.5f, 0.2f);
+                Debug.LogWarning($"[Projectile] Collider was missing, added new one!");
+            }
     }
 
     private void Start()
     {
-        // Used to get a message on the console if any important component is missing.
-        if (_Sfx == null || _Renderer == null || _Collider == null)
-        {
-            Debug.LogWarning(gameObject.name + ": BoxCollider2D || SpriteRenderer || SoundFXHandler!");
-        }
+       
+            if (PhotonNetwork.InRoom && _Collider == null)
+            {
+                _Collider = GetComponent<BoxCollider2D>();
+                if (_Collider == null)
+                {
+                    _Collider = gameObject.AddComponent<BoxCollider2D>();
+                    _Collider.isTrigger = true;
+                    _Collider.size = new Vector2(0.5f, 0.2f);
+                    Debug.LogError("[Projectile] Collider missing after network instantiation, added!");
+                }
+            }
+
+            // 기존 경고 메시지
+            if (_Sfx == null || _Renderer == null || _Collider == null)
+            {
+                Debug.LogWarning(gameObject.name + ": BoxCollider2D || SpriteRenderer || SoundFXHandler!");
+            }
     }
 
     private void Update()
@@ -153,6 +175,32 @@ public class Projectile : MonoBehaviourPun
         if (!photonView.IsMine || impactCount > 0)
             return;
 
+        Debug.Log(" BVullet Triggered");
+
+        // 태그 대신 PlayerStatus 컴포넌트로 확인
+        PlayerStatus playerStatus = collision.GetComponent<PlayerStatus>();
+        if (playerStatus == null && collision.transform.parent != null)
+        {
+            playerStatus = collision.GetComponentInParent<PlayerStatus>();
+        }
+
+        if (playerStatus != null)
+        {
+            PhotonView targetView = playerStatus.GetComponent<PhotonView>();
+            if (targetView != null && !targetView.IsMine)
+            {
+                if (targetView != null && !targetView.IsMine)
+                {
+                    Debug.Log($"Sending RPC to {targetView.Owner.NickName}");
+
+                    Debug.Log("Player Damage trigger" + 10);
+                    targetView.RPC("TakeDamage", targetView.Owner, 10); // 피해 전달
+                    PhotonNetwork.Instantiate("Particles/" + hitPFX.name, transform.position, Quaternion.identity);
+                    PhotonNetwork.Destroy(gameObject);
+                }
+            }
+        }
+
         if (collision.CompareTag("Wall"))
         {
             impactCount++;
@@ -161,16 +209,23 @@ public class Projectile : MonoBehaviourPun
             PhotonNetwork.Destroy(gameObject);
         }
 
-        if (collision.CompareTag("Player"))
-        {
-            PhotonView targetView = collision.GetComponent<PhotonView>();
-            if (targetView != null && !targetView.IsMine)
-            {
-                targetView.RPC("TakeDamage", targetView.Owner, 10); // 피해 전달
-                PhotonNetwork.Instantiate("Particles/" + hitPFX.name, transform.position, Quaternion.identity);
-                PhotonNetwork.Destroy(gameObject);
-            }
-        }
+        //if (collision.CompareTag("Player"))
+        //{
+        //    Debug.Log($"Player hit - GameObject: {collision.gameObject.name}");
+        //    Debug.Log($"Has PhotonView: {collision.GetComponent<PhotonView>() != null}");
+        //    Debug.Log($"Has PlayerStatus: {collision.GetComponent<PlayerStatus>() != null}");
+
+        //    PhotonView targetView = collision.GetComponent<PhotonView>();
+        //    if (targetView != null && !targetView.IsMine)
+        //    {
+        //        Debug.Log($"Sending RPC to {targetView.Owner.NickName}");
+
+        //        Debug.Log("Player Damage trigger" + 10);
+        //        targetView.RPC("TakeDamage", targetView.Owner, 10); // 피해 전달
+        //        PhotonNetwork.Instantiate("Particles/" + hitPFX.name, transform.position, Quaternion.identity);
+        //        PhotonNetwork.Destroy(gameObject);
+        //    }
+        //}
     }
     #endregion
 }

@@ -126,13 +126,27 @@ public class Weapon_ShootProjectileCanCharge : Weapon
     {
         base.PrimaryAction(value);
 
-        if(primaryProjectile == null && canUse)
+        // 디버그 추가
+        Debug.Log($"Prefab name: {basicProjectilePrefab.name}");
+        Debug.Log($"Has Collider: {basicProjectilePrefab.GetComponent<Collider2D>() != null}");
+
+        if (primaryProjectile == null && canUse)
         {
             string prefabName = basicProjectilePrefab.name;
             GameObject bullet = PhotonNetwork.Instantiate("Projectiles/" + prefabName, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+            Debug.Log($"Created bullet has collider: {bullet.GetComponent<Collider2D>() != null}");
+
             bullet.transform.SetParent(projectileSpawnPoint);
             primaryProjectile = bullet.GetComponent<Projectile>();
         }
+
+        //if(primaryProjectile == null && canUse)
+        //{
+        //    string prefabName = basicProjectilePrefab.name;
+        //    GameObject bullet = PhotonNetwork.Instantiate("Projectiles/" + prefabName, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+        //    bullet.transform.SetParent(projectileSpawnPoint);
+        //    primaryProjectile = bullet.GetComponent<Projectile>();
+        //}
 
         // Can be executed only if there is a projectile available and canUse is true.
         if (primaryProjectile != null && canUse)
