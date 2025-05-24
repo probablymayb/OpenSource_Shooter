@@ -5,28 +5,28 @@ using UnityEngine.UI;
 
 public class UIController : MonoBehaviour
 {
-    //public float Progress { get; private set; }
-
     private const string matchPopupName = "MatchingPopup";
+    //private static UIController instance;
 
-    // Start is called before the first frame update
+
+    void Awake()
+    {
+       // instance = this;
+        //Debug.Log("[UIController] Awake called!");
+
+    }
+
     void Start()
     {
         GameManager.Initialize();
     }
 
-    // Update is called once per frame
-    void LateUpdate()
+    void Update()
     {
-        GetPlayerInput();
-    }
 
-    void GetPlayerInput()
-    {
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             var popup = GameManager.UI.IsPopupStack(matchPopupName);
-
             if (popup != null)
             {
                 GameManager.UI.HidePopup(popup);

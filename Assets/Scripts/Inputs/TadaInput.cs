@@ -42,7 +42,7 @@ public class TadaInput : MonoBehaviour
     { 
         None, MoveLeft, MoveRight, MoveUp, MoveDown, PrimaryAction, SecondaryAction,
         PreviousWeapon, NextWeapon, PreviousUseRate, NextUseRate, Xbox360RightTrigger,
-        Xbox360LeftTrigger, MouseAnyMovement, Dash, Pause, Count
+        Xbox360LeftTrigger, MouseAnyMovement, Dash, Pause, Tab, Count,
     }
     private static ThisKey[] currentKeys;
     private static ThisKey[] currentKeysDown;
@@ -222,6 +222,10 @@ public class TadaInput : MonoBehaviour
             StoreCurrentKeyDown(ThisKey.PreviousWeapon);
         }
 
+
+        if (Input.GetKeyDown(KeyCode.Tab))
+            StoreCurrentKeyDown(ThisKey.Tab);
+
         #endregion
 
         #region ------------------------------------------ STORE CURRENT KEY UP
@@ -272,6 +276,9 @@ public class TadaInput : MonoBehaviour
             StoreCurrentKeyUp(ThisKey.PreviousWeapon);
             isScrollWheelActive = false;
         }
+
+        if (Input.GetKeyUp(KeyCode.Tab))
+            StoreCurrentKeyUp(ThisKey.Tab);
 
         #endregion
         #endregion
