@@ -349,7 +349,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &29825281
 GameObject:
@@ -1910,7 +1910,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &182218108
 GameObject:
@@ -3704,7 +3704,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &358059203
 Transform:
   m_ObjectHideFlags: 0
@@ -3917,6 +3917,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debug: 0
   _UseRate: 0
+  _UseRateDefault: 0
+  _CHARGE_DURATION: 0
+  _CHARGE_DURATION_Default: 0
   notes: This is a derived class from the base class Weapon. It has a primary action
     to shoot projectiles based on a UseRate value and a secondary action with a timer
     that after reaching its duration will shoot a secondary projectile.
@@ -4376,6 +4379,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debug: 0
   _UseRate: 0
+  _UseRateDefault: 0
+  _CHARGE_DURATION: 0
+  _CHARGE_DURATION_Default: 0
   notes: This is a derived class from the base class Weapon. It has a primary action
     to shoot projectiles based on a UseRate value and a secondary action with a timer
     that after reaching its duration will shoot a secondary projectile.
@@ -6049,8 +6055,8 @@ MonoBehaviour:
   notes: This class is used as a bridge between the player and the weapons, everything
     that can be done with the base class Weapon should be handled by this class.
   weapons:
-  - {fileID: 374505912}
-  - {fileID: 358059208}
+  - {fileID: 1371754443}
+  - {fileID: 1015514904}
 --- !u!61 &476692618
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -6433,7 +6439,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 2.5
+  orthographic size: 5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -6662,6 +6668,52 @@ Transform:
   - {fileID: 538197901}
   m_Father: {fileID: 1969033465}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &531665279
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 531665283}
+  - component: {fileID: 531665282}
+  m_Layer: 0
+  m_Name: ITEM
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &531665282
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 531665279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 135edc15f547b0f4caa9c7b221a0feee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weapon: {fileID: 693635511}
+  hitbox: {fileID: 0}
+--- !u!4 &531665283
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 531665279}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 5.88, y: 0.06, z: 0.12500001}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 693635512}
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &538197900
 GameObject:
@@ -8754,6 +8806,60 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 693224598}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &693635510
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 693635512}
+  - component: {fileID: 693635511}
+  m_Layer: 0
+  m_Name: ItemWeapon_FINAL_Laser_ShotGun
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &693635511
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 693635510}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bafb37298b1098645aa4c61a318d6fee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debug: 0
+  _UseRate: 0
+  _UseRateDefault: 0
+  _UseRateStrong: 0
+  _UseRateStrongDefault: 0
+  notes: This is a derived class from the base class Weapon. It has a primary action
+    to shoot projectiles based on a UseRate value and a secondary action with a timer
+    that after reaching its duration will shoot a secondary projectile.
+  basicProjectilePrefab: {fileID: 0}
+  strongProjectilePrefab: {fileID: 0}
+  projectileSpawnPoint: {fileID: 0}
+--- !u!4 &693635512
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 693635510}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 531665283}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &706836894
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12239,6 +12345,62 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1013559667}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1015514902
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1015514903}
+  - component: {fileID: 1015514904}
+  m_Layer: 0
+  m_Name: FINAL_Trident
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1015514903
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1015514902}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1847097034}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1015514904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1015514902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1519f0978190a144aac84460dbc433d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debug: 0
+  _UseRate: 0
+  _UseRateDefault: 0
+  _CHARGE_DURATION: 0
+  _CHARGE_DURATION_Default: 0
+  notes: This is a derived class from the base class Weapon. It has a primary action
+    to shoot projectiles based on a UseRate value and a secondary action with a timer
+    that after reaching its duration will shoot a secondary projectile.
+  basicProjectilePrefab: {fileID: 0}
+  chargedProjectilePrefab: {fileID: 0}
+  projectileSpawnPoint: {fileID: 0}
+  chargingPFX: {fileID: 0}
+  chargingSFX: {fileID: 0}
 --- !u!1 &1017417917
 GameObject:
   m_ObjectHideFlags: 0
@@ -13102,7 +13264,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1115524553
 PrefabInstance:
@@ -14382,7 +14544,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1260558696
 PrefabInstance:
@@ -15290,7 +15452,7 @@ PrefabInstance:
     - target: {fileID: 5089116883865689446, guid: 8451522295f3ccc4192bbd9866023319,
         type: 3}
       propertyPath: m_RootOrder
-      value: 9
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 5089116883865689446, guid: 8451522295f3ccc4192bbd9866023319,
         type: 3}
@@ -15651,6 +15813,62 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1359893901}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1371754441
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1371754442}
+  - component: {fileID: 1371754443}
+  m_Layer: 0
+  m_Name: FINAL_LaserRifle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1371754442
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1371754441}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1847097034}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1371754443
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1371754441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf2f865593d0b3a44a8a0b0b733a39cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debug: 0
+  _UseRate: 0
+  _UseRateDefault: 0
+  _CHARGE_DURATION: 0
+  _CHARGE_DURATION_Default: 0
+  notes: This is a derived class from the base class Weapon. It has a primary action
+    to shoot projectiles based on a UseRate value and a secondary action with a timer
+    that after reaching its duration will shoot a secondary projectile.
+  basicProjectilePrefab: {fileID: 0}
+  chargedProjectilePrefab: {fileID: 0}
+  projectileSpawnPoint: {fileID: 0}
+  chargingPFX: {fileID: 0}
+  chargingSFX: {fileID: 0}
 --- !u!1001 &1380758709
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -19410,7 +19628,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 12
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1709493129
 MonoBehaviour:
@@ -19924,7 +20142,7 @@ Transform:
   - {fileID: 231162384}
   - {fileID: 1898656838}
   m_Father: {fileID: 0}
-  m_RootOrder: 10
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1741674807
 PrefabInstance:
@@ -20495,7 +20713,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 11
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1801082442
 MonoBehaviour:
@@ -20539,7 +20757,7 @@ Transform:
   m_Children:
   - {fileID: 1290914982}
   m_Father: {fileID: 0}
-  m_RootOrder: 14
+  m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1805551881
 MonoBehaviour:
@@ -21232,6 +21450,8 @@ Transform:
   - {fileID: 2102813758}
   - {fileID: 374505907}
   - {fileID: 358059203}
+  - {fileID: 1371754442}
+  - {fileID: 1015514903}
   m_Father: {fileID: 1111896426}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -70}
@@ -21534,7 +21754,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1880250896
 PrefabInstance:
@@ -22315,7 +22535,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1908661715
 MonoBehaviour:
@@ -23188,7 +23408,7 @@ Transform:
   m_Children:
   - {fileID: 1833541727}
   m_Father: {fileID: 0}
-  m_RootOrder: 13
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1991328519
 MonoBehaviour:

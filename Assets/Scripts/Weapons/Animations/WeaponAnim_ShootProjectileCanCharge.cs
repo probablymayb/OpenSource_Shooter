@@ -30,4 +30,9 @@ public class WeaponAnim_ShootProjectileCanCharge : AnimationHandler
                 break;
         }
     }
+
+    public new void SetAnimationSpeed(string name, float speed)
+    {
+        base.SetAnimationSpeed(name, speed);
+    }
 }

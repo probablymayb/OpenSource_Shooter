@@ -71,7 +71,7 @@ public class PlayerController : MonoBehaviour
             _WeaponHandler.UseWeapon(WeaponHandler.ActionType.Primary, false);
 
         // Weapon: Use Secondary Action while holding Right Mouse Button
-        if (TadaInput.GetKeyDown(TadaInput.ThisKey.SecondaryAction))
+        if (TadaInput.GetKey(TadaInput.ThisKey.SecondaryAction))
             _WeaponHandler.UseWeapon(WeaponHandler.ActionType.Secondary);
 
         // Weapon: Cancel Weapon Secondary Action if Right Mouse Button is released
@@ -110,6 +110,22 @@ public class PlayerController : MonoBehaviour
         if (TadaInput.GetKeyDown(TadaInput.ThisKey.PreviousWeapon))
             _WeaponHandler.SwitchWeapon(WeaponHandler.WeaponSwitchMode.Previous);
 
+        #endregion
+
+        #region ---------------------------- GET ITEM
+
+        if (TadaInput.GetKeyDown(TadaInput.ThisKey.GetItem)){
+            //check is collided
+            GameObject obj = _PlayerPhysics.getCollidedObject();
+            if(obj != null){
+                //If colObject is Item
+                Item item = obj.GetComponent<Item>();
+                if(item != null){
+                   _WeaponHandler.GetItemWeapon(item);
+                }
+            }
+        }
+        
         #endregion
     }
 

@@ -73,11 +73,28 @@ public class Projectile : MonoBehaviour
         _Renderer.enabled = _Collider.enabled = value;
     }
 
+    public void setVolume(float volume){
+        _Sfx.setVolume(volume);
+    }
+
     /// <summary>
     /// To launch the projectile towards <see cref="travelDirection"/>.
     /// </summary>
-    public void Fire()
+    public void Fire(float rotateDiff)
     {
+        GameObject clonedProjectile = Instantiate(gameObject, transform.position, transform.rotation);
+        Projectile clonedProjectileScript = clonedProjectile.GetComponent<Projectile>();
+        clonedProjectileScript.setVolume(_Sfx.getVolume());
+        clonedProjectileScript.Fire_Cloned(rotateDiff);
+    }
+
+    public void Fire(){
+        this.Fire(0);
+    }
+
+    private void Fire_Cloned(float rotateDiff){
+        SetActive(true);
+
         //Debug.Log("Projectile: Fire()");
         hasLaunched = true;
         _Sfx.PlaySound(0);
@@ -88,6 +105,8 @@ public class Projectile : MonoBehaviour
         else
             travelDirection = Vector3.right;
 
+        Quaternion rotate = Quaternion.Euler(0, 0, rotateDiff);
+        transform.rotation = rotate * transform.rotation;
         transform.parent = null;
         Destroy(gameObject, LifeTime);
     }
@@ -118,7 +137,10 @@ public class Projectile : MonoBehaviour
             Instantiate(hitPFX, collision.ClosestPoint(transform.position), Quaternion.identity);
 
             // Destroy this gameobject (this happens in the next frame after all the actions of this method are executed).
-            Destroy(gameObject);
+            //Destroy(gameObject);
+
+            hasLaunched = false;
+            SetActive(false);
         }
     }
     #endregion

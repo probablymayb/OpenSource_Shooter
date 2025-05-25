@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 0
+  m_UseShadowmask: 1
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -956,6 +956,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debug: 0
   _UseRate: 0
+  _UseRateDefault: 0
+  _CHARGE_DURATION: 0
+  _CHARGE_DURATION_Default: 0
   notes: This is a derived class from the base class Weapon. It has a primary action
     to shoot projectiles based on a UseRate value and a secondary action with a timer
     that after reaching its duration will shoot a secondary projectile.
@@ -1255,6 +1258,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debug: 0
   _UseRate: 0
+  _UseRateDefault: 0
+  _CHARGE_DURATION: 0
+  _CHARGE_DURATION_Default: 0
   notes: This is a derived class from the base class Weapon. It has a primary action
     to shoot projectiles based on a UseRate value and a secondary action with a timer
     that after reaching its duration will shoot a secondary projectile.
@@ -1566,7 +1572,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 476692608}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -3, y: 6, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 182218109}
@@ -1654,13 +1660,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 485bd3e99c6913e45aa866d5b71b4602, type: 3}
-  m_Name: 
+  m_Name: WeaponBridge
   m_EditorClassIdentifier: 
   notes: This class is used as a bridge between the player and the weapons, everything
     that can be done with the base class Weapon should be handled by this class.
   weapons:
   - {fileID: 374505912}
   - {fileID: 358059208}
+  - {fileID: 1392656975}
 --- !u!61 &476692618
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1720,6 +1727,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 384fc866cc7a6144abe95279d4812ae9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  notes: This class will be used to control all the behaviours related to the player's
+    materials.
   bodyMaterial: {fileID: 2100000, guid: 2f4e9ae02ea53e64dafaa049fb5fbe5c, type: 2}
 --- !u!1 &519420028
 GameObject:
@@ -1807,7 +1816,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 6
+  orthographic size: 5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1854,6 +1863,7 @@ MonoBehaviour:
   _FollowSpeed: 3
   _MaxOffset: 3
   target: {fileID: 476692612}
+  isOffsetActive: 1
 --- !u!1 &554125086
 GameObject:
   m_ObjectHideFlags: 0
@@ -2298,10 +2308,12 @@ MonoBehaviour:
   axis: 0
   turnRate: 10
   offsetLookAtAngle: 0
+  maxAngle: 360
   isUpdateCalledLocally: 0
   isSmoothRotationEnable: 0
   isFlipAxis: 0
   debugColor: {r: 0, g: 1, b: 0, a: 1}
+  debug: 0
 --- !u!1 &644534752
 GameObject:
   m_ObjectHideFlags: 0
@@ -3446,7 +3458,7 @@ MonoBehaviour:
     variables, feel free to mess around with them to get a feeling of what each of
     them do. To reset the values simply right click on top of the script name and
     hit Reset."
-  lerpRate: 2
+  lerpSpeed: 2
   sensitivity: {x: 0.1, y: 1}
   initialOffset: {x: 0.25, y: 0.18}
   minMaxOffsetX: {x: -1, y: 0.3}
@@ -4277,6 +4289,62 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!1 &1392656973
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1392656974}
+  - component: {fileID: 1392656975}
+  m_Layer: 0
+  m_Name: LaserRifle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1392656974
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1392656973}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1847097034}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1392656975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1392656973}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f79991876b1f8634cb6d590e0833d392, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debug: 0
+  _UseRate: 0
+  _UseRateDefault: 0
+  _CHARGE_DURATION: 0
+  _CHARGE_DURATION_Default: 0
+  notes: This is a derived class from the base class Weapon. It has a primary action
+    to shoot projectiles based on a UseRate value and a secondary action with a timer
+    that after reaching its duration will shoot a secondary projectile.
+  basicProjectilePrefab: {fileID: 0}
+  chargedProjectilePrefab: {fileID: 0}
+  projectileSpawnPoint: {fileID: 0}
+  chargingPFX: {fileID: 0}
+  chargingSFX: {fileID: 0}
 --- !u!1 &1474418374
 GameObject:
   m_ObjectHideFlags: 0
@@ -4332,10 +4400,12 @@ MonoBehaviour:
   axis: 1
   turnRate: 10
   offsetLookAtAngle: 0
+  maxAngle: 360
   isUpdateCalledLocally: 0
   isSmoothRotationEnable: 0
   isFlipAxis: 0
   debugColor: {r: 0, g: 1, b: 0, a: 1}
+  debug: 0
 --- !u!212 &1474418377
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -4961,10 +5031,12 @@ MonoBehaviour:
   axis: 1
   turnRate: 10
   offsetLookAtAngle: 0
+  maxAngle: 360
   isUpdateCalledLocally: 0
   isSmoothRotationEnable: 0
   isFlipAxis: 0
   debugColor: {r: 0, g: 1, b: 0, a: 1}
+  debug: 0
 --- !u!1 &1709493127
 GameObject:
   m_ObjectHideFlags: 0
@@ -5541,6 +5613,7 @@ Transform:
   - {fileID: 2102813758}
   - {fileID: 374505907}
   - {fileID: 358059203}
+  - {fileID: 1392656974}
   m_Father: {fileID: 1111896426}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -70}
@@ -6636,10 +6709,12 @@ MonoBehaviour:
   axis: 0
   turnRate: 10
   offsetLookAtAngle: 0
+  maxAngle: 360
   isUpdateCalledLocally: 0
   isSmoothRotationEnable: 0
   isFlipAxis: 0
   debugColor: {r: 0, g: 1, b: 0, a: 1}
+  debug: 0
 --- !u!114 &2099770714
 MonoBehaviour:
   m_ObjectHideFlags: 0

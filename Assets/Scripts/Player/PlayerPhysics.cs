@@ -31,11 +31,17 @@ public class PlayerPhysics : Physics2DHandler
     {
         if (collision != null)
         {
+            //Debug.Log(collision.gameObject.name);
+
             if (collision.CompareTag("EnvironmentTrigger"))
             {
                 collision.TryGetComponent(out EnvironmentObjectTrigger trigger);
                 trigger.SetActiveObjects();
             }
+
+
+            Item item = collision.gameObject.GetComponent<Item>();
+            if(item != null) this.collided = item.gameObject;
         }
     }
 
@@ -43,7 +49,14 @@ public class PlayerPhysics : Physics2DHandler
     {
         if (collision != null)
         {
-
+            Item item = collision.gameObject.GetComponent<Item>();
+            if(item != null) this.collided = null;
         }
+    }
+
+    private GameObject collided;
+
+    public GameObject getCollidedObject(){
+        return collided;
     }
 }
