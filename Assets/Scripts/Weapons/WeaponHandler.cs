@@ -163,4 +163,21 @@ public class WeaponHandler : MonoBehaviour
             }
         }
     }
+
+
+    public void GetItemWeapon(Item item){
+        Weapon now = currentWeapon;
+        Weapon get = item.weapon;
+
+        weapons[currentWeaponIndex] = get;
+        currentWeapon = get;
+
+        get.transform.SetParent(now.transform.parent, false);
+        now.transform.SetParent(item.transform, false);
+
+        item.weapon = now;
+
+        get.reload();
+        now.stop();
+    }
 }

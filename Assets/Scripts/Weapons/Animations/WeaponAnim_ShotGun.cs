@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
-public class WeaponAnim_ShootProjectileCanCharge : AnimationHandler
+public class WeaponAnim_ShotGun : AnimationHandler
 {
     [TextArea(2, 10)]
     public string notes = "This class has methods to handle the animations of the derived class W_ShootProjectileCanCharge.";
 
-    public enum Animation { Idle, BasicShot, Charging, ChargedShot }
+    public enum Animation { Idle, BasicShot, StrongShot }
 
     public void PlayAnimation(Animation name)
     {
@@ -17,13 +17,9 @@ public class WeaponAnim_ShootProjectileCanCharge : AnimationHandler
             case Animation.BasicShot:
                 PlayAnimation("BasicShot");
                 break;
-
-            case Animation.Charging:
-                PlayAnimation("Charging");
-                break;
-
-            case Animation.ChargedShot:
-                PlayAnimation("ChargedShot");
+            
+            case Animation.StrongShot:
+                PlayAnimation("StrongShot");
                 break;
 
             default:

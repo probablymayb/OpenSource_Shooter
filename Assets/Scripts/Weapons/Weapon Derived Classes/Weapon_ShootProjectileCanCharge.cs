@@ -17,6 +17,16 @@ public class Weapon_ShootProjectileCanCharge : Weapon
     // ---- https://twitter.com/tadadosi ----
     // --------------------------------------
 
+    protected float CHARGE_DURATION { 
+        get { return _CHARGE_DURATION; } 
+        private set { _CHARGE_DURATION = value; } }
+    [SerializeField] protected float _CHARGE_DURATION;
+
+    protected float CHARGE_DURATION_Default { 
+        get { return _CHARGE_DURATION_Default; } 
+        private set { _CHARGE_DURATION_Default = value; } }
+    [SerializeField] protected float _CHARGE_DURATION_Default;
+
     [TextArea(5, 10)]
     public string notes = "This is a derived class from the base class Weapon. It has a primary action to shoot projectiles " +
         "based on a UseRate value and a secondary action with a timer that after reaching its duration will shoot a secondary projectile.";
@@ -34,16 +44,40 @@ public class Weapon_ShootProjectileCanCharge : Weapon
 
     private Projectile primaryProjectile;
     private Projectile secondaryProjectile;
+    protected WeaponAnim_ShootProjectileCanCharge anim;
+
     private bool isReceivingInput = false;
     private bool isCharging = false;
     private float chargingTime;
 
-    private const float CHARGE_DURATION = 2f;
+    //the Vector of CameraShake(duration, shakeAmount, decreaseFactor)
+    protected Vector3 CS_P;
+    protected Vector3 CS_SC;
+    protected Vector3 CS_SF;
+
+    public override void stop(){
+        base.stop();
+        isReceivingInput = false;
+        OnChargeCancel();
+    }
 
     protected override void Awake()
     {
         base.Awake();
         useRateValues = new float[] { 0.125f, 0.05f };
+        _CHARGE_DURATION_Default = 2f;
+        //useRateValues = new float[] { 0.125f, 0.05f };
+        TryGetComponent(out anim);
+
+        CS_P = new Vector3(0.075f, 0.1f, 3f);
+        CS_SC = new Vector3(0, 0.065f, 1f);
+        CS_SF = new Vector3(0.2f, 1f, 3f);
+
+        /*
+        CS_P = Vector3.zero;
+        CS_SC = Vector3.zero;
+        CS_SF = Vector3.zero;
+        */
     }
 
     protected override void Update()
@@ -69,6 +103,16 @@ public class Weapon_ShootProjectileCanCharge : Weapon
         // currently charging, execute the cancel actions.
         if (!isReceivingInput && isCharging)
             OnChargeCancel();
+    }
+
+    protected override void calculateUseRate(){
+        base.calculateUseRate();
+        _CHARGE_DURATION = _CHARGE_DURATION_Default / useRateValues[useRateIndex];
+
+        //change animation speed from default speed
+        anim.SetAnimationSpeed("BasicShot", (_UseRate<0.125f)?(0.125f/_UseRate):(1));
+        anim.SetAnimationSpeed("Charging", 2f/_CHARGE_DURATION);
+        anim.SetAnimationSpeed("ChargedShot", 2f/_CHARGE_DURATION);
     }
 
     private void OnEnable()
@@ -122,6 +166,15 @@ public class Weapon_ShootProjectileCanCharge : Weapon
         }
     }
 
+    //fire func
+    protected virtual void PrimaryFire() {
+        primaryProjectile.Fire();
+    }
+
+    protected virtual void SecondaryFire() {
+        secondaryProjectile.Fire();
+    }
+
     public override void PrimaryAction(bool value)
     {
         base.PrimaryAction(value);
@@ -141,12 +194,12 @@ public class Weapon_ShootProjectileCanCharge : Weapon
             animator.SetInteger("WeaponAction", (int)WeaponAction.BasicShot);
 
             // Make the camera Shake.
-            CameraShake.Shake(duration: 0.075f, shakeAmount: 0.1f, decreaseFactor: 3f);
+            CameraShake.Shake(CS_P.x, CS_P.y, CS_P.z);
 
             // Call the method Fire on the projectile to launch it towards the crosshair direction.
             bool isRight = PlayerBodyPartsHandler.isRightDirection;
             // Enable the projectile.
-            primaryProjectile.SetActive(true);
+            //primaryProjectile.SetActive(true);
 
             if (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame)
             {
@@ -156,9 +209,13 @@ public class Weapon_ShootProjectileCanCharge : Weapon
             {
                 primaryProjectile.Fire();
             }
+            // Call the method Fire on the projectile to launch it towards the crosshair direction.
+            PrimaryFire();
+
+            //Destroy(primaryProjectile, 0.1f);
 
             // We make it null to give room to a new instantiated projectile.
-            primaryProjectile = null;
+            //primaryProjectile = null;
 
             // We make it false to execute the base Update actions which makes it true again after UseRate duration is reached,
             // which then calls the method OnCanUse() that's used to spawn new projectiles and to return to the Idle anim.
@@ -219,7 +276,7 @@ public class Weapon_ShootProjectileCanCharge : Weapon
 
             // NOTE: Weapon Charging Shake. Right now this shake behaviour will override the OnChargingEnd shake.
             // In order to fix this I need to add timer to stop the charging option from being rapidly reused.
-            CameraShake.Shake(duration: CHARGE_DURATION, shakeAmount: 0.065f, decreaseFactor: 1f);
+            CameraShake.Shake(CHARGE_DURATION, CS_SC.y, CS_SC.z);
 
             // Enable the charging visual effects.
             chargingPFX.SetActive(true);
@@ -256,12 +313,13 @@ public class Weapon_ShootProjectileCanCharge : Weapon
         chargingTime = 0.0f;
 
         // Make the camera Shake by a greater value.
-        CameraShake.Shake(duration: 0.2f, shakeAmount: 1f, decreaseFactor: 3f);
+        CameraShake.Shake(CS_SF.x, CS_SF.y, CS_SF.z);
 
         // Call the method Fire on the projectile to launch it towards the crosshair direction.
 
         bool isRight = PlayerBodyPartsHandler.isRightDirection;
         // Enable the projectile.
+//<<<<<<< HEAD
         if (secondaryProjectile == null)
         {
             string prefabName = chargedProjectilePrefab.name;
@@ -280,15 +338,24 @@ public class Weapon_ShootProjectileCanCharge : Weapon
         {
             secondaryProjectile.Fire();
         }
+//=======
+        //secondaryProjectile.SetActive(true);
+
+        // Call the method Fire on the projectile to launch it towards the crosshair direction.
+        SecondaryFire();
+//>>>>>>> sj
 
         // Make it null to give room to a new instantiated projectile.
-        secondaryProjectile = null;
+        //secondaryProjectile = null;
 
         // Reset the scale of the charging visual fx.
         chargingPFX.transform.localScale = Vector2.one;
 
         // Disable the charge visual fx.
         chargingPFX.SetActive(false);
+
+        // Stop the charging SoundHandlerLocal sounds.
+        chargingSFX.StopSound();
     }
 
     /// <summary>

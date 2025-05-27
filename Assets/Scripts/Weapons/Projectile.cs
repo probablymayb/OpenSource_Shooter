@@ -116,13 +116,29 @@ public class Projectile : MonoBehaviourPun
         {
             Debug.LogWarning($"[Projectile] DestroyAfterLifetimeAsync 예외 발생: {e.Message}");
         }
+        
+    public void setVolume(float volume){
+        _Sfx.setVolume(volume);
     }
 
     /// <summary>
     /// To launch the projectile towards <see cref="travelDirection"/>.
     /// </summary>
-    public void Fire()
+    public void Fire(float rotateDiff)
     {
+        GameObject clonedProjectile = Instantiate(gameObject, transform.position, transform.rotation);
+        Projectile clonedProjectileScript = clonedProjectile.GetComponent<Projectile>();
+        clonedProjectileScript.setVolume(_Sfx.getVolume());
+        clonedProjectileScript.Fire_Cloned(rotateDiff);
+    }
+
+    public void Fire(){
+        this.Fire(0);
+    }
+
+    private void Fire_Cloned(float rotateDiff){
+        SetActive(true);
+
         //Debug.Log("Projectile: Fire()");
         hasLaunched = true;
         _Sfx.PlaySound(0);
@@ -133,6 +149,8 @@ public class Projectile : MonoBehaviourPun
         else
             travelDirection = Vector3.right;
 
+        Quaternion rotate = Quaternion.Euler(0, 0, rotateDiff);
+        transform.rotation = rotate * transform.rotation;
         transform.parent = null;
         Destroy(gameObject, LifeTime);
     }
@@ -170,6 +188,11 @@ public class Projectile : MonoBehaviourPun
                 PhotonNetwork.Instantiate("Particles/" + hitPFX.name, transform.position, Quaternion.identity);
                 PhotonNetwork.Destroy(gameObject);
             }
+            // Destroy this gameobject (this happens in the next frame after all the actions of this method are executed).
+            //Destroy(gameObject);
+
+            hasLaunched = false;
+            SetActive(false);
         }
     }
     #endregion
