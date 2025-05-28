@@ -42,7 +42,7 @@ public class Weapon_ShootProjectileCanCharge : Weapon
 
     private enum WeaponAction { Idle = 0, BasicShot = 1, Charging = 2, ChargedShot = 3 }
 
-    private Projectile primaryProjectile;
+    protected Projectile primaryProjectile;
     private Projectile secondaryProjectile;
     protected WeaponAnim_ShootProjectileCanCharge anim;
 

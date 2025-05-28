@@ -335,8 +335,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97f42ff5572e46844bee6c8e389e5f24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  notes: This class have static mouse input variables that can be easily accessed
-    by any other class.
+  playerCamera: {fileID: 0}
 --- !u!4 &28457501
 Transform:
   m_ObjectHideFlags: 0
@@ -3930,6 +3929,7 @@ MonoBehaviour:
   projectileSpawnPoint: {fileID: 759255768}
   chargingPFX: {fileID: 2135343188}
   chargingSFX: {fileID: 358059209}
+  animator: {fileID: 0}
 --- !u!114 &358059209
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4392,6 +4392,7 @@ MonoBehaviour:
   projectileSpawnPoint: {fileID: 644534753}
   chargingPFX: {fileID: 1574127334}
   chargingSFX: {fileID: 374505913}
+  animator: {fileID: 0}
 --- !u!114 &374505913
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5901,6 +5902,7 @@ GameObject:
   - component: {fileID: 476692610}
   - component: {fileID: 476692609}
   - component: {fileID: 476692620}
+  - component: {fileID: 476692621}
   m_Layer: 8
   m_Name: Player
   m_TagString: Untagged
@@ -6021,6 +6023,7 @@ MonoBehaviour:
   getAnimInChild: 1
   notes: This class has methods for controlling the player's animations. The PlayerController
     class is the one that calls those methods.
+  animator: {fileID: 476692621}
 --- !u!114 &476692616
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6057,6 +6060,7 @@ MonoBehaviour:
   weapons:
   - {fileID: 1371754443}
   - {fileID: 1015514904}
+  animator: {fileID: 476692621}
 --- !u!61 &476692618
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -6119,6 +6123,25 @@ MonoBehaviour:
   notes: This class is used to control all the behaviours related to the player's
     materials.
   bodyMaterial: {fileID: 2100000, guid: 2f4e9ae02ea53e64dafaa049fb5fbe5c, type: 2}
+--- !u!95 &476692621
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 476692608}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 04f9b4070fcbbf64cb6cb603119d7d1c, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1001 &482830976
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12401,6 +12424,7 @@ MonoBehaviour:
   projectileSpawnPoint: {fileID: 0}
   chargingPFX: {fileID: 0}
   chargingSFX: {fileID: 0}
+  animator: {fileID: 0}
 --- !u!1 &1017417917
 GameObject:
   m_ObjectHideFlags: 0
@@ -13463,6 +13487,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 392398601}
     m_Modifications:
+    - target: {fileID: -5847544244894725542, guid: ddfc27c36f61c80478b57e06195306a5,
+        type: 3}
+      propertyPath: sceneViewId
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 5805658982914378132, guid: ddfc27c36f61c80478b57e06195306a5,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -15409,6 +15438,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 779677254883421285, guid: 8451522295f3ccc4192bbd9866023319,
+        type: 3}
+      propertyPath: sceneViewId
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 5089116883865689445, guid: 8451522295f3ccc4192bbd9866023319,
         type: 3}
       propertyPath: m_Name
@@ -15869,6 +15903,7 @@ MonoBehaviour:
   projectileSpawnPoint: {fileID: 0}
   chargingPFX: {fileID: 0}
   chargingSFX: {fileID: 0}
+  animator: {fileID: 0}
 --- !u!1001 &1380758709
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -25388,6 +25423,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 366334905}
     m_Modifications:
+    - target: {fileID: -5847544244894725542, guid: ddfc27c36f61c80478b57e06195306a5,
+        type: 3}
+      propertyPath: sceneViewId
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5805658982914378132, guid: ddfc27c36f61c80478b57e06195306a5,
         type: 3}
       propertyPath: m_LocalPosition.x

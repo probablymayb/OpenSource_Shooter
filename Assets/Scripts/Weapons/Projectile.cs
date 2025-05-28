@@ -20,7 +20,7 @@ public class Projectile : MonoBehaviourPun
 
     #region ---------------------------- PROPERTIES
 
-    public float Speed { get { return _Speed; } set {  _Speed = value; } }
+    public float Speed { get { return _Speed; } set { _Speed = value; } }
     [SerializeField] private float _Speed = 20f;
 
     public float LifeTime { get { return _LifeTime; } set { _LifeTime = value; } }
@@ -116,56 +116,12 @@ public class Projectile : MonoBehaviourPun
         {
             Debug.LogWarning($"[Projectile] DestroyAfterLifetimeAsync 예외 발생: {e.Message}");
         }
+
         
-    public void setVolume(float volume){
-        _Sfx.setVolume(volume);
+
+        #region ---------------------------- COLLISIONS
+        
     }
-
-    /// <summary>
-    /// To launch the projectile towards <see cref="travelDirection"/>.
-    /// </summary>
-    public void Fire(float rotateDiff)
-    {
-        GameObject clonedProjectile = Instantiate(gameObject, transform.position, transform.rotation);
-        Projectile clonedProjectileScript = clonedProjectile.GetComponent<Projectile>();
-        clonedProjectileScript.setVolume(_Sfx.getVolume());
-        clonedProjectileScript.Fire_Cloned(rotateDiff);
-    }
-
-    public void Fire(){
-        this.Fire(0);
-    }
-
-    private void Fire_Cloned(float rotateDiff){
-        SetActive(true);
-
-        //Debug.Log("Projectile: Fire()");
-        hasLaunched = true;
-        _Sfx.PlaySound(0);
-
-        // Set travel direction based on the current direction of the body
-        if (!PlayerBodyPartsHandler.isRightDirection)
-            travelDirection = -Vector3.right;
-        else
-            travelDirection = Vector3.right;
-
-        Quaternion rotate = Quaternion.Euler(0, 0, rotateDiff);
-        transform.rotation = rotate * transform.rotation;
-        transform.parent = null;
-        Destroy(gameObject, LifeTime);
-    }
-
-    /// <summary>
-    /// Moves the projectile towards <see cref="travelDirection"/> using transform.Translate.
-    /// </summary>
-    private void Travel()
-    {
-        movement = Time.deltaTime * Speed;
-        transform.Translate(travelDirection.normalized * movement, Space.Self);
-    }
-    #endregion
-
-    #region ---------------------------- COLLISIONS
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!photonView.IsMine || impactCount > 0)
@@ -194,6 +150,56 @@ public class Projectile : MonoBehaviourPun
             hasLaunched = false;
             SetActive(false);
         }
+    }
+    #endregion
+    public void setVolume(float volume)
+    {
+        _Sfx.setVolume(volume);
+    }
+
+    /// <summary>
+    /// To launch the projectile towards <see cref="travelDirection"/>.
+    /// </summary>
+    public void Fire(float rotateDiff)
+    {
+        GameObject clonedProjectile = Instantiate(gameObject, transform.position, transform.rotation);
+        Projectile clonedProjectileScript = clonedProjectile.GetComponent<Projectile>();
+        clonedProjectileScript.setVolume(_Sfx.getVolume());
+        clonedProjectileScript.Fire_Cloned(rotateDiff);
+    }
+
+    public void Fire()
+    {
+        this.Fire(0);
+    }
+
+    private void Fire_Cloned(float rotateDiff)
+    {
+        SetActive(true);
+
+        //Debug.Log("Projectile: Fire()");
+        hasLaunched = true;
+        _Sfx.PlaySound(0);
+
+        // Set travel direction based on the current direction of the body
+        if (!PlayerBodyPartsHandler.isRightDirection)
+            travelDirection = -Vector3.right;
+        else
+            travelDirection = Vector3.right;
+
+        Quaternion rotate = Quaternion.Euler(0, 0, rotateDiff);
+        transform.rotation = rotate * transform.rotation;
+        transform.parent = null;
+        Destroy(gameObject, LifeTime);
+    }
+
+    /// <summary>
+    /// Moves the projectile towards <see cref="travelDirection"/> using transform.Translate.
+    /// </summary>
+    private void Travel()
+    {
+        movement = Time.deltaTime * Speed;
+        transform.Translate(travelDirection.normalized * movement, Space.Self);
     }
     #endregion
 }

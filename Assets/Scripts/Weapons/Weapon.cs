@@ -53,7 +53,7 @@ public class Weapon : MonoBehaviour
 
     //ProjectilePrefab
     protected GameObject getProjPref(string objName){
-        return getObject("Prefabs/Projectiles/" + objName);
+        return getObject("Resources/Projectiles/" + objName);
     }
 
     //AudioClip
@@ -66,7 +66,7 @@ public class Weapon : MonoBehaviour
 
     //AnimationClip
     protected AnimationClip getAnimationClip(string animName){
-        string path = "Sprites/Animations/Weapons/" + animName;
+        string path = "Animations/Weapons/" + animName;
         AnimationClip clip = AssetDatabase.LoadAssetAtPath<AnimationClip>("Assets/" + path);
         if(clip == null) {Debug.LogError(path + " not Found");}
         return clip;
@@ -118,7 +118,7 @@ public class Weapon : MonoBehaviour
 
     //particle
     protected GameObject createPFX(string name, string objName, Transform parent, Vector3 position = default(Vector3)){
-        GameObject PFX_IMSI = getObject("Prefabs/Particles/" + objName);
+        GameObject PFX_IMSI = getObject("Resources/Particles/" + objName);
         GameObject Ins = Instantiate(PFX_IMSI, transform.position, Quaternion.identity);
         Ins.name = name;
 
