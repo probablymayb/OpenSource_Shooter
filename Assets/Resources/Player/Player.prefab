@@ -2324,6 +2324,7 @@ Transform:
   - {fileID: 1891017298393692680}
   - {fileID: 3043438894555723777}
   - {fileID: 3149552290374567926}
+  - {fileID: 5044456357808772149}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2542,10 +2543,9 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents:
+  - {fileID: 1891017298328505587}
   - {fileID: 5281534748381807788}
   - {fileID: 5506282608346415250}
-  - {fileID: 1891017298497398346}
-  - {fileID: 1891017299242343091}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -3113,6 +3113,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1891017298497398347}
   - component: {fileID: 1891017298497398346}
+  - component: {fileID: 7271220731922631803}
   m_Layer: 0
   m_Name: pivot_ForeArm_L --- LookAt
   m_TagString: Untagged
@@ -3163,6 +3164,30 @@ MonoBehaviour:
   isFlipAxis: 0
   debugColor: {r: 0, g: 1, b: 0, a: 1}
   debug: 0
+--- !u!114 &7271220731922631803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1891017298497398356}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents:
+  - {fileID: 1891017298497398346}
+  - {fileID: 1891017299242343091}
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &1891017298556025522
 GameObject:
   m_ObjectHideFlags: 0
@@ -4366,6 +4391,7 @@ GameObject:
   - component: {fileID: 1891017299242343090}
   - component: {fileID: 1891017299242343091}
   - component: {fileID: 1891017299242343089}
+  - component: {fileID: 387895493185502007}
   m_Layer: 0
   m_Name: Hand_L ------ LookAt
   m_TagString: Untagged
@@ -4487,6 +4513,29 @@ MonoBehaviour:
     needed to.
   afterImagePrefab: {fileID: 6966699086694962128, guid: 8a404528287d32a4a88cbc22d34e009f,
     type: 3}
+--- !u!114 &387895493185502007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1891017299242343101}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents:
+  - {fileID: 1891017299242343091}
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &1891017299406119215
 GameObject:
   m_ObjectHideFlags: 0
@@ -4730,6 +4779,51 @@ TrailRenderer:
   m_MinVertexDistance: 0.1
   m_Autodestruct: 0
   m_Emitting: 0
+--- !u!1 &2439131541599179848
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5044456357808772149}
+  - component: {fileID: 4709261895617179337}
+  m_Layer: 0
+  m_Name: CrosshairHandler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5044456357808772149
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2439131541599179848}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 4.5030003, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1891017298328505599}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4709261895617179337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2439131541599179848}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b32cfe6decb6fc3449618b1e12e329a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  notes: This class has conditions to determine which of the crosshairs should be
+    enabled and updating.
 --- !u!1 &3880695339770794851
 GameObject:
   m_ObjectHideFlags: 0
@@ -5544,15 +5638,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ddfc27c36f61c80478b57e06195306a5, type: 3}
---- !u!4 &5381773118555196061 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5805658982914378132, guid: ddfc27c36f61c80478b57e06195306a5,
-    type: 3}
-  m_PrefabInstance: {fileID: 1891017298992448265}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &5381773118555196062 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5805658982914378135, guid: ddfc27c36f61c80478b57e06195306a5,
+    type: 3}
+  m_PrefabInstance: {fileID: 1891017298992448265}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &5381773118555196061 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5805658982914378132, guid: ddfc27c36f61c80478b57e06195306a5,
     type: 3}
   m_PrefabInstance: {fileID: 1891017298992448265}
   m_PrefabAsset: {fileID: 0}

@@ -17,7 +17,7 @@ public class CrosshairMouse : Crosshair
     /// <summary>
     /// Vector that goes from player position to crosshair world position.
     /// </summary>
-    public static Vector3 AimDirection
+    public Vector3 AimDirection
     {
         get { return _AimDirection; }
         private set { _AimDirection = value; }

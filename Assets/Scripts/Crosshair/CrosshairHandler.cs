@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Photon.Pun;
+using UnityEngine;
 
 /// <summary>
 /// This class has conditions to determine which of the crosshairs should be enabled and updating. 
@@ -17,18 +18,20 @@ public class CrosshairHandler : MonoBehaviour
     public string notes = "This class has conditions to determine which of the crosshairs should be enabled and updating.";
 
     private CrosshairMouse mouseCrosshair;
-    private CrosshairJoystick joystickCrosshair;
+    private PhotonView photonView;
 
     private bool isReady;
 
     private void Awake()
     {
-        mouseCrosshair = FindObjectOfType<CrosshairMouse>();
-        joystickCrosshair = FindObjectOfType<CrosshairJoystick>();
+        photonView = transform.root.GetComponent<PhotonView>();
+        mouseCrosshair = transform.root.GetComponentInChildren<CrosshairMouse>();
     }
 
     private void Update()
     {
+        if (photonView == null || !photonView.IsMine) return;
+
         CheckIfReady();
 
         if (!TadaInput.IsMouseActive)
@@ -36,17 +39,13 @@ public class CrosshairHandler : MonoBehaviour
             if (mouseCrosshair.IsActive)
             {
                 mouseCrosshair.IsActive = false;
-                joystickCrosshair.IsActive = true;
             }
-
-            joystickCrosshair.UpdateCrosshair();
         }
         else
         {
             if (!mouseCrosshair.IsActive)
             {
                 mouseCrosshair.IsActive = true;
-                joystickCrosshair.IsActive = false;
             }
 
             mouseCrosshair.UpdateCrosshair();
@@ -57,9 +56,9 @@ public class CrosshairHandler : MonoBehaviour
     {
         if (!isReady)
         {
-            if (mouseCrosshair == null || joystickCrosshair == null)
+            if (mouseCrosshair == null)
             {
-                Debug.LogError(gameObject.name + ": mouse or/and joystick crosshair missing!");
+                Debug.LogError(gameObject.name + ": mouse crosshair missing!");
                 return;
             }
 

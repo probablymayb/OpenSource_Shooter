@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Photon.Pun;
+using UnityEngine;
 
 /// <summary>
 /// This class uses TadaInput.VectorPlayerToMouseWPos to move the local position of a gameobject that's
@@ -27,25 +28,35 @@ public class PlayerHandTargetToLookAt : MonoBehaviour
     [SerializeField] private Vector2 minMaxOffsetX = new Vector2 (-1f, 0.3f);
     [SerializeField] private Vector2 minMaxOffsetY = new Vector2(0.18f, 1f);
 
-    private Vector2 aimDirection;
+    private Vector2 aimDirection = new Vector2(0, 0);
+    private CrosshairMouse crosshairMouse;
+
+    public void Awake()
+    {
+        crosshairMouse = transform.root.GetComponentInChildren<CrosshairMouse>();
+    }
 
     private void Update()
     {
-        float clampX = 0.0f;
-        float clampY = 0.0f;
+        /*if (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame)
+        {
+            float clampX = 0.0f;
+            float clampY = 0.0f;
 
-        if (TadaInput.IsMouseActive)
-            aimDirection = CrosshairMouse.AimDirection;
-        else
-            aimDirection = CrosshairJoystick.AimDirection;
+            if (TadaInput.IsMouseActive)
+                aimDirection = crosshairMouse.AimDirection;
+            else
+                aimDirection = crosshairMouse.AimDirection;
 
-        if (aimDirection.y > 0)
-            clampX = Mathf.Clamp(initialOffset.x - aimDirection.y * sensitivity.x, minMaxOffsetX.x, minMaxOffsetX.y);
-        else if (aimDirection.y < 0)
-            clampX = Mathf.Clamp(initialOffset.x + aimDirection.y * sensitivity.x, minMaxOffsetX.x, minMaxOffsetX.y);
+            if (aimDirection.y > 0)
+                clampX = Mathf.Clamp(initialOffset.x - aimDirection.y * sensitivity.x, minMaxOffsetX.x, minMaxOffsetX.y);
+            else if (aimDirection.y < 0)
+                clampX = Mathf.Clamp(initialOffset.x + aimDirection.y * sensitivity.x, minMaxOffsetX.x, minMaxOffsetX.y);
 
-        clampY = Mathf.Clamp(initialOffset.y - aimDirection.y * sensitivity.y, minMaxOffsetY.x, minMaxOffsetY.y);
+            clampY = Mathf.Clamp(initialOffset.y - aimDirection.y * sensitivity.y, minMaxOffsetY.x, minMaxOffsetY.y);
 
-        transform.localPosition = Vector2.Lerp(transform.localPosition, new Vector2 (clampX, clampY), Time.deltaTime * lerpSpeed);
+            transform.localPosition = Vector2.Lerp(transform.localPosition, new Vector2(clampX, clampY), Time.deltaTime * lerpSpeed);
+        }*/
+        
     }
 }

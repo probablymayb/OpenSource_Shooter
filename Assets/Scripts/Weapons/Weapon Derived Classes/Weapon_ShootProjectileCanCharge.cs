@@ -74,7 +74,6 @@ public class Weapon_ShootProjectileCanCharge : Weapon
     private void OnEnable()
     {
         SpawnProjectiles();
-        Debug.Log("총 쏘기 OnEnable");
     }
 
     protected override void OnCanUse()
