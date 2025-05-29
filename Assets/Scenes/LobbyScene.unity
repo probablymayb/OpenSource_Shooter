@@ -17554,8 +17554,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b76bb2a45c406be4f982e000184a96c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  notes: Basic class to draw messages on the screen.
-  drawGUI: 1
 --- !u!4 &1908661714
 Transform:
   m_ObjectHideFlags: 0
@@ -20063,6 +20061,7 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents:
+  - {fileID: 1891017297884492936}
   - {fileID: 5281534748216622295}
   - {fileID: 2432063912669903927}
   - {fileID: 1891017297753431017}
@@ -20363,7 +20362,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1891017297469657960}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bc93577eb0eb8b8449b2934a53f84997, type: 3}
   m_Name: 

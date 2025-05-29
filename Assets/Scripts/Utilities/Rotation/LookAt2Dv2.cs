@@ -51,10 +51,12 @@ public class LookAt2Dv2 : MonoBehaviour, IPunObservable
     private Vector3 upwardAxis;
 
     private PhotonView photonView;
+    private LookAt2Dv2Handler lookAtHandler;
 
     private void Awake()
     {
-        photonView = GetComponent<PhotonView>();
+        TryGetComponent(out photonView);
+        TryGetComponent(out lookAtHandler);
     }
 
     private void Update()
@@ -137,19 +139,15 @@ public class LookAt2Dv2 : MonoBehaviour, IPunObservable
         offsetLookAtAngle = value;
     }
 
-    // 🔄 회전 동기화
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)
         {
-            // 내 회전값 전송
             stream.SendNext(transform.rotation);
         }
         else
         {
-            // 다른 유저의 회전값 수신
-            Quaternion receivedRotation = (Quaternion)stream.ReceiveNext();
-            transform.rotation = receivedRotation;
+            transform.rotation = (Quaternion)stream.ReceiveNext();
         }
     }
 }

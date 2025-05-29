@@ -3,7 +3,7 @@
 /// <summary>
 /// Basic class to draw messages on the screen.
 /// </summary>
-public class GUIHandler : MonoBehaviour
+/*public class GUIHandler : MonoBehaviour
 {
     // --------------------------------------
     // ----- 2D Isometric Shooter Study -----
@@ -47,4 +47,4 @@ public class GUIHandler : MonoBehaviour
             GUI.Label(new Rect(Screen.width / 2f, Screen.height - Screen.height / 30f, 0, 0), s4, style);
         }
     }
-}
+}*/
