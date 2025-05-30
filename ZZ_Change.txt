@@ -1,0 +1,26 @@
+Assets/ 에 있던 파일 일부를 Assets/Resources로 이동
+Audio
+Sprites
+
+Weapon 시스템에서 리소스를 불러오는 함수를 전부 Resources 폴더에서 불러오는 것으로 수정
+
+Weapon Derived Classes 변화
+Weapon_ShootProjectileCanCharge
+기본 차징 속도 추가, 기본 발사속도와 똑같이 배속 영향을 받음
+총알 발사만 함수로 분리, 상속받은 클래스에서 매커니즘 변경 없이 수정 가능
+
+
+Projectile 시스템 변경
+총알이 직접 발사되지 않음, Fire 호출시 자신의 복제본을 생성해 발사
+함수를 간단하게 변경
+	Fire 통합, 싱글과 멀티 구분은 isRPCFire 로 구분해 따로 작동
+	구분 여부는 Weapons 클래스에서 적용
+총알 소리 조절 기능 추가
+
+SoundHandlerLocal에 publicVolume 추가, 소리를 재생할 때 곱함
+Sound에 SetComp 추가, FINAL Weapon에서 총알 발사 소리를 생성할 때 사용
+
+PlayerPhysics에 collided 추가, 접촉중인 GameObject를 저장하고 반환 가능
+
+TadaInput에 F키 입력 추가
+PlayerController에 F키 입력 추가, 입력시 접촉한 Item이 있으면 무기 교체

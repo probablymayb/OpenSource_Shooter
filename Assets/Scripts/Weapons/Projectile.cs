@@ -38,6 +38,8 @@ public class Projectile : MonoBehaviourPun
     private bool hasLaunched;
     private int impactCount;
 
+    public bool isRPCFire = false;
+
     #endregion
 
     #region ---------------------------- UNITY CALLBACKS
@@ -85,18 +87,75 @@ public class Projectile : MonoBehaviourPun
         _Renderer.enabled = _Collider.enabled = value;
     }
 
-    public void Fire(bool isRight)
-    {
-        photonView.RPC("RPC_Fire", RpcTarget.All, isRight);
+    //set projectile launch sound volume
+    public void setVolume(float volume){
+        _Sfx.setVolume(volume);
     }
 
-    [PunRPC]
-    private void RPC_Fire(bool isRight)
+    /// <summary>
+    /// To launch the projectile towards <see cref="travelDirection"/>.
+    /// </summary>
+    
+    //네트워크가 없을 때 실행되는 함수
+    public void Fire(){
+        this.Fire(0);
+    }
+    public void Fire(float rotateDiff)
     {
+        if(isRPCFire) {
+            photonView.RPC("RPC_Fire", RpcTarget.All, rotateDiff);
+        }
+        else {
+        GameObject clonedProjectile = Instantiate(gameObject, transform.position, transform.rotation);
+        Projectile clonedProjectileScript = clonedProjectile.GetComponent<Projectile>();
+        clonedProjectileScript.setVolume(_Sfx.getVolume());
+        clonedProjectileScript.Fire_Cloned(rotateDiff);
+        }
+
+    }
+
+    private void Fire_Cloned(float rotateDiff){
+        bool isRight = PlayerBodyPartsHandler.isRightDirection;
+
+        //총알이 보이도록 설정
+        SetActive(true);
         hasLaunched = true;
+
+        //방향 설정
         travelDirection = isRight ? Vector3.right : -Vector3.right;
+        Quaternion rotate = Quaternion.Euler(0, 0, rotateDiff);
+        transform.rotation = rotate * transform.rotation;
+
         transform.parent = null;
-        _Sfx?.PlaySound(0);
+        _Sfx.PlaySound(0);
+
+        Destroy(gameObject, LifeTime);
+    }
+    //네트워크가 있을 때 실행되는 함수
+    [PunRPC]
+    private void RPC_Fire(float rotateDiff)
+    {
+        GameObject clonedProjectile = Instantiate(gameObject, transform.position, transform.rotation);
+        Projectile clonedProjectileScript = clonedProjectile.GetComponent<Projectile>();
+        clonedProjectileScript.setVolume(_Sfx.getVolume());
+        clonedProjectileScript.RPC_Fire_Cloned(rotateDiff);
+    }
+    [PunRPC]
+    private void RPC_Fire_Cloned(float rotateDiff)
+    {
+        bool isRight = PlayerBodyPartsHandler.isRightDirection;
+
+        //총알이 보이도록 설정
+        SetActive(true);
+        hasLaunched = true;
+
+        //방향 설정
+        travelDirection = isRight ? Vector3.right : -Vector3.right;
+        Quaternion rotate = Quaternion.Euler(0, 0, rotateDiff);
+        transform.rotation = rotate * transform.rotation;
+
+        transform.parent = null;
+        _Sfx.PlaySound(0);
 
         //주의: IsMine인 쪽만 Destroy() 예약
         if (photonView.IsMine)
@@ -118,24 +177,6 @@ public class Projectile : MonoBehaviourPun
         }
     }
 
-    /// <summary>
-    /// To launch the projectile towards <see cref="travelDirection"/>.
-    /// </summary>
-    public void Fire()
-    {
-        //Debug.Log("Projectile: Fire()");
-        hasLaunched = true;
-        _Sfx.PlaySound(0);
-
-        // Set travel direction based on the current direction of the body
-        if (!PlayerBodyPartsHandler.isRightDirection)
-            travelDirection = -Vector3.right;
-        else
-            travelDirection = Vector3.right;
-
-        transform.parent = null;
-        Destroy(gameObject, LifeTime);
-    }
 
     /// <summary>
     /// Moves the projectile towards <see cref="travelDirection"/> using transform.Translate.
