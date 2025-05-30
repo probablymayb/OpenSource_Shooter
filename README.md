@@ -90,7 +90,7 @@
 - [Reddit u/tadadosi](https://www.reddit.com/user/tadadosi)
 
 ### 현재 프로젝트 관리자
-- [GitHub @probablymaybe](https://github.com/probablymaybe) - 포크 프로젝트 관리자 및 문서화 담당
+- [GitHub @probablymayb](https://github.com/probablymayb) - 포크 프로젝트 관리자 및 문서화 담당
 
 ### 이슈 및 문의
 - [GitHub Issues](https://github.com/probablymaybe/2DTopDownIsometricShooterStudy/issues) - 버그 리포트 및 기능 요청
