@@ -5,20 +5,15 @@ public class PlayerHealth : MonoBehaviour
     public float maxHealth = 100f;
     public float currentHealth;
 
-    private HealthBarUI healthUI;
+    public GameObject endGamePanel; // ✅ Inspector에서 연결할 UI
 
-    public GameObject model;   // 플레이어 외형 (사망 시 숨기기용)
     private bool isDead = false;
 
     void Start()
     {
         currentHealth = maxHealth;
-
-        healthUI = FindObjectOfType<HealthBarUI>();
-        if (healthUI != null)
-        {
-            healthUI.SetMaxHealth(maxHealth);
-        }
+        if (endGamePanel != null)
+            endGamePanel.SetActive(false); // 처음엔 꺼져 있어야 함
     }
 
     public void TakeDamage(float damage)
@@ -28,41 +23,23 @@ public class PlayerHealth : MonoBehaviour
         currentHealth -= damage;
         currentHealth = Mathf.Max(0, currentHealth);
 
-        if (healthUI != null)
-        {
-            healthUI.SetHealth(currentHealth);
-        }
-
         if (currentHealth <= 0)
         {
-            Die();
+            Die(); // 사망 처리
         }
     }
 
-    public void Die()
+    void Die()
     {
-        if (isDead) return;
         isDead = true;
 
-        Debug.Log("플레이어 사망!");
-
-        if (model != null)
-            model.SetActive(false);
-
-        Invoke(nameof(Respawn), 3f);
-    }
-
-    void Respawn()
-    {
-        currentHealth = maxHealth;
-        isDead = false;
-
-        if (model != null)
-            model.SetActive(true);
-
-        if (healthUI != null)
+        // ✅ EndGame UI 보여주기
+        if (endGamePanel != null)
         {
-            healthUI.SetHealth(currentHealth);
+            endGamePanel.SetActive(true);
         }
+
+        // ✅ 플레이어 조작 중지 또는 오브젝트 숨기기
+        gameObject.SetActive(false);
     }
 }
