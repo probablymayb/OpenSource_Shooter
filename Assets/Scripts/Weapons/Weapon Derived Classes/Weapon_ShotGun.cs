@@ -141,22 +141,27 @@ public class Weapon_ShotGun : Weapon
         if (primaryProjectile == null)
         {
             // Instantiate.
-            primaryProjectile = Instantiate(basicProjectilePrefab, projectileSpawnPoint.position,
-            projectileSpawnPoint.rotation, projectileSpawnPoint).GetComponent<Projectile>();
+            if (!PhotonNetwork.InRoom)
+            {
+                primaryProjectile = Instantiate(basicProjectilePrefab, projectileSpawnPoint.position,
+                projectileSpawnPoint.rotation, projectileSpawnPoint).GetComponent<Projectile>();
 
-            // Disable to hide it while it's behind the weapon.
-            primaryProjectile.SetActive(false);
+                // Disable to hide it while it's behind the weapon.
+                primaryProjectile.SetActive(false);
+            }
         }
 
         // If there is no projectile, instantiate one and store its Projectile component.
         if (secondaryProjectile == null)
         {
-            // Instantiate.
-            secondaryProjectile = Instantiate(strongProjectilePrefab, projectileSpawnPoint.position,
-            projectileSpawnPoint.rotation, projectileSpawnPoint).GetComponent<Projectile>();
+            if (!PhotonNetwork.InRoom)
+            {
+                secondaryProjectile = Instantiate(strongProjectilePrefab, projectileSpawnPoint.position,
+                projectileSpawnPoint.rotation, projectileSpawnPoint).GetComponent<Projectile>();
 
-            // Disable to hide it while it's behind the weapon.
-            secondaryProjectile.SetActive(false);
+                // Disable to hide it while it's behind the weapon.
+                secondaryProjectile.SetActive(false);
+            }
         }
     }
 
@@ -188,26 +193,30 @@ public class Weapon_ShotGun : Weapon
     {
         base.PrimaryAction(value);
 
-        //SPCC에서는 총알이 null이라면 재생성하는 기능이 있던데, 총알이 null일 상황이 나오지 않도록 설정해놔서 여기선 스킵
+        if (primaryProjectile == null && canUse)
+        {
+            string prefabName = basicProjectilePrefab.name;
+            GameObject bullet = PhotonNetwork.Instantiate("Projectiles/" + prefabName, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+            bullet.transform.SetParent(projectileSpawnPoint);
+            primaryProjectile = bullet.GetComponent<Projectile>();
+            bullet.gameObject.tag = "First_PrimaryProjectile";
+        }
 
         // Can be executed only if there is a projectile available and canUse is true.
         if (primaryProjectile != null && canUseTotal)
         {
             bool isRight = PlayerBodyPartsHandler.isRightDirection;
-            // Play the basic animation if WeaponAnim_ShootProjectileCanCharge is available.
+
             animator.SetInteger("WeaponAction", (int)WeaponAction.BasicShot);
 
             // Make the camera Shake.
             CameraShake.Shake(CS_P.x, CS_P.y, CS_P.z);
 
-            // Call the method Fire on the projectile to launch it towards the crosshair direction.
             //네트워크에 있을시 발사 방향을 건네줌?
             primaryProjectile.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame);
 
             PrimaryFire(isRight);
 
-            // We make it false to execute the base Update actions which makes it true again after UseRate duration is reached,
-            // which then calls the method OnCanUse() that's used to spawn new projectiles and to return to the Idle anim.
             canUse = false;
         }
     }
