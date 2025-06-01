@@ -32,6 +32,7 @@ public class Projectile : MonoBehaviourPun
     private BoxCollider2D _Collider;
     private SpriteRenderer _Renderer;
     private SoundHandlerLocal _Sfx;
+    private Transform cloneProjectiles_t;
 
     private Vector3 travelDirection;
     private float movement;
@@ -48,6 +49,8 @@ public class Projectile : MonoBehaviourPun
         TryGetComponent(out _Sfx);
         TryGetComponent(out _Renderer);
         TryGetComponent(out _Collider);
+
+        cloneProjectiles_t = GameObject.Find("CloneProjectiles").transform;
     }
 
     private void Start()
@@ -97,19 +100,23 @@ public class Projectile : MonoBehaviourPun
     /// </summary>
     
     //네트워크가 없을 때 실행되는 함수
-    public void Fire(){
-        this.Fire(0);
+    public void Fire(bool isRight){
+        this.Fire(0, isRight);
     }
-    public void Fire(float rotateDiff)
+    public void Fire(float rotateDiff, bool isRight)
     {
         if(isRPCFire) {
-            photonView.RPC("RPC_Fire", RpcTarget.All, rotateDiff);
+            photonView.RPC("RPC_Fire", RpcTarget.All, rotateDiff, isRight);
+            Debug.Log($"[DEBUG] PhotonNetwork.IsConnected: {PhotonNetwork.IsConnected}, IsConnectedAndReady: {PhotonNetwork.IsConnectedAndReady}, InRoom: {PhotonNetwork.InRoom}");
+            Debug.Log($"[DEBUG] PhotonManager._currentPhase : {PhotonManager._currentPhase}");
         }
         else {
-        GameObject clonedProjectile = Instantiate(gameObject, transform.position, transform.rotation);
-        Projectile clonedProjectileScript = clonedProjectile.GetComponent<Projectile>();
-        clonedProjectileScript.setVolume(_Sfx.getVolume());
-        clonedProjectileScript.Fire_Cloned(rotateDiff);
+            Debug.Log($"[DEBUG] PhotonNetwork.IsConnected: {PhotonNetwork.IsConnected}, IsConnectedAndReady: {PhotonNetwork.IsConnectedAndReady}, InRoom: {PhotonNetwork.InRoom}");
+            Debug.Log($"[DEBUG] PhotonManager._currentPhase : {PhotonManager._currentPhase}");
+            /*GameObject clonedProjectile = Instantiate(gameObject, transform.position, transform.rotation);
+            Projectile clonedProjectileScript = clonedProjectile.GetComponent<Projectile>();
+            //clonedProjectileScript.setVolume(_Sfx.getVolume());
+            clonedProjectileScript.Fire_Cloned(rotateDiff);*/
         }
 
     }
@@ -133,19 +140,17 @@ public class Projectile : MonoBehaviourPun
     }
     //네트워크가 있을 때 실행되는 함수
     [PunRPC]
-    private void RPC_Fire(float rotateDiff)
+    private void RPC_Fire(float rotateDiff, bool isRight)
     {
-        GameObject clonedProjectile = Instantiate(gameObject, transform.position, transform.rotation);
-        Projectile clonedProjectileScript = clonedProjectile.GetComponent<Projectile>();
-        clonedProjectileScript.setVolume(_Sfx.getVolume());
-        clonedProjectileScript.RPC_Fire_Cloned(rotateDiff);
+        transform.SetParent(cloneProjectiles_t);
+        tag = "clone";
+        setVolume(_Sfx.getVolume());
+        RPC_Fire_Cloned(rotateDiff, isRight);
     }
-    [PunRPC]
-    private void RPC_Fire_Cloned(float rotateDiff)
-    {
-        bool isRight = PlayerBodyPartsHandler.isRightDirection;
 
-        //총알이 보이도록 설정
+    [PunRPC]
+    private void RPC_Fire_Cloned(float rotateDiff, bool isRight)
+    {
         SetActive(true);
         hasLaunched = true;
 
@@ -154,7 +159,6 @@ public class Projectile : MonoBehaviourPun
         Quaternion rotate = Quaternion.Euler(0, 0, rotateDiff);
         transform.rotation = rotate * transform.rotation;
 
-        transform.parent = null;
         _Sfx.PlaySound(0);
 
         //주의: IsMine인 쪽만 Destroy() 예약
