@@ -5,6 +5,6 @@ public class StartUI : MonoBehaviour
 {
     public void OnClickStart()
     {
-        SceneManager.LoadScene("Level_00");
+        //SceneManager.LoadScene("Level_00");
     }
 }
