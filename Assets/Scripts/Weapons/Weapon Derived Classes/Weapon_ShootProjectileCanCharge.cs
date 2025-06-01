@@ -163,11 +163,11 @@ public class Weapon_ShootProjectileCanCharge : Weapon
     }
 
     //발사 함수(상속받은 클래스가 수정 가능)
-    protected virtual void PrimaryFire() {
-        primaryProjectile.Fire();
+    protected virtual void PrimaryFire(bool isRight) {
+        primaryProjectile.Fire(isRight);
     }
-    protected virtual void SecondaryFire() {
-        secondaryProjectile.Fire();
+    protected virtual void SecondaryFire(bool isRight) {
+        secondaryProjectile.Fire(isRight);
     }
 
     public override void PrimaryAction(bool value)
@@ -180,11 +180,13 @@ public class Weapon_ShootProjectileCanCharge : Weapon
             GameObject bullet = PhotonNetwork.Instantiate("Projectiles/" + prefabName, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
             bullet.transform.SetParent(projectileSpawnPoint);
             primaryProjectile = bullet.GetComponent<Projectile>();
+            bullet.gameObject.tag = "First_PrimaryProjectile";
         }
 
         // Can be executed only if there is a projectile available and canUse is true.
         if (primaryProjectile != null && canUse)
         {
+            bool isRight = PlayerBodyPartsHandler.isRightDirection;
             // Play the basic animation if WeaponAnim_ShootProjectileCanCharge is available.
             animator.SetInteger("WeaponAction", (int)WeaponAction.BasicShot);
 
@@ -201,7 +203,7 @@ public class Weapon_ShootProjectileCanCharge : Weapon
             primaryProjectile.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame);
 
             //발사 함수 호출
-            PrimaryFire();
+            PrimaryFire(isRight);
             
             //투사체를 삭제하지 않음
             // We make it null to give room to a new instantiated projectile.
@@ -320,7 +322,7 @@ public class Weapon_ShootProjectileCanCharge : Weapon
         //secondaryProjectile.SetActive(true);
 
         secondaryProjectile.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame);
-        SecondaryFire();
+        SecondaryFire(isRight);
 
         // Make it null to give room to a new instantiated projectile.
         //secondaryProjectile = null;

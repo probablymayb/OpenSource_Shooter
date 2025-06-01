@@ -76,7 +76,7 @@ public class FINAL_Weapon_LaserRifle : Weapon_ShootProjectileCanCharge
         this.animator = null;
     }
 
-    protected override void PrimaryFire() {
-        primaryProjectile.Fire(Random.Range(-5, 5));
+    protected override void PrimaryFire(bool isRight) {
+        primaryProjectile.Fire(Random.Range(-5, 5), isRight);
     }
 }

@@ -165,23 +165,23 @@ public class Weapon_ShotGun : Weapon
     #region ---------------------------- SHOOT FUNCTION
 
     //fire func
-    protected virtual void PrimaryFire() {
+    protected virtual void PrimaryFire(bool isRight) {
         primaryProjectile.setVolume(2f/3);
 
         for(int i=0; i<3; i++) {
-            primaryProjectile.Fire(Random.Range(-10, 10));
+            primaryProjectile.Fire(Random.Range(-10, 10), isRight);
             primaryProjectile.Speed = 20f*Random.Range(0.9f, 1.1f);
         }
-        primaryProjectile.Fire();
+        primaryProjectile.Fire(isRight);
     }
 
-    protected virtual void SecondaryFire() {
+    protected virtual void SecondaryFire(bool isRight) {
         secondaryProjectile.setVolume(2f/5);
         for(int i=0; i<7; i++) {
-            secondaryProjectile.Fire(Random.Range(-20, 20));
+            secondaryProjectile.Fire(Random.Range(-20, 20), isRight);
             secondaryProjectile.Speed = 20f*Random.Range(0.9f, 1.1f);
         }
-        secondaryProjectile.Fire();
+        secondaryProjectile.Fire(isRight);
     }
 
     public override void PrimaryAction(bool value)
@@ -193,6 +193,7 @@ public class Weapon_ShotGun : Weapon
         // Can be executed only if there is a projectile available and canUse is true.
         if (primaryProjectile != null && canUseTotal)
         {
+            bool isRight = PlayerBodyPartsHandler.isRightDirection;
             // Play the basic animation if WeaponAnim_ShootProjectileCanCharge is available.
             animator.SetInteger("WeaponAction", (int)WeaponAction.BasicShot);
 
@@ -203,7 +204,7 @@ public class Weapon_ShotGun : Weapon
             //네트워크에 있을시 발사 방향을 건네줌?
             primaryProjectile.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame);
 
-            PrimaryFire();
+            PrimaryFire(isRight);
 
             // We make it false to execute the base Update actions which makes it true again after UseRate duration is reached,
             // which then calls the method OnCanUse() that's used to spawn new projectiles and to return to the Idle anim.
@@ -218,6 +219,7 @@ public class Weapon_ShotGun : Weapon
         // Can be executed only if there is a projectile available and canUse is true.
         if (secondaryProjectile != null && canUseTotal)
         {
+            bool isRight = PlayerBodyPartsHandler.isRightDirection;
             // Play the basic animation if WeaponAnim_ShootProjectileCanCharge is available.
             animator.SetInteger("WeaponAction", (int)WeaponAction.StrongShot);
 
@@ -228,7 +230,7 @@ public class Weapon_ShotGun : Weapon
             //네트워크에 있을시 발사 방향을 건네줌?
             secondaryProjectile.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame);
 
-            SecondaryFire();
+            SecondaryFire(isRight);
 
             // We make it false to execute the base Update actions which makes it true again after UseRate duration is reached,
             // which then calls the method OnCanUse() that's used to spawn new projectiles and to return to the Idle anim.

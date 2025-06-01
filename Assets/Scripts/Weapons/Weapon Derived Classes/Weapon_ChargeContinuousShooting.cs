@@ -131,7 +131,7 @@ public class Weapon_ChargeContinuousShooting : Weapon
 
             primaryProjectile.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame);
 
-            primaryProjectile.Fire();
+            primaryProjectile.Fire(isRight);
 
             //primaryProjectile = null;
             canUse = false;
@@ -197,7 +197,7 @@ public class Weapon_ChargeContinuousShooting : Weapon
         //secondaryProjectile.SetActive(true);
 
         secondaryProjectile.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame);
-        secondaryProjectile.Fire();
+        secondaryProjectile.Fire(isRight);
         
         secondaryProjectile = null;
         chargingPFX.transform.localScale = Vector2.one;
