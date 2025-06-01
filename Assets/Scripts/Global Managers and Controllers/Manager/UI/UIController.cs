@@ -1,40 +1,26 @@
-﻿using System.Collections;
+﻿using Photon.Pun;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UIController : MonoBehaviour
 {
-    private const string matchPopupName = "MatchingPopup";
-    //private static UIController instance;
+    public Button startBtn;
 
-
-    void Awake()
+    void Update()
     {
-       // instance = this;
-        //Debug.Log("[UIController] Awake called!");
-
+        startBtn.interactable = PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InLobby;
     }
 
     void Start()
     {
         GameManager.Initialize();
-    }
 
-    void Update()
-    {
-
-        if (Input.GetKeyDown(KeyCode.Tab))
+        startBtn.onClick.AddListener(() =>
         {
-            var popup = GameManager.UI.IsPopupStack(matchPopupName);
-            if (popup != null)
-            {
-                GameManager.UI.HidePopup(popup);
-            }
-            else
-            {
-                GameManager.UI.ShowPopup(matchPopupName).Forget();
-            }
-        }
+            startBtn.interactable = false;
+            GameManager.Photon.StartRandomMatch();
+        });
     }
 }
