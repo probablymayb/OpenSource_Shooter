@@ -26,9 +26,6 @@ public class FINAL_Weapon_LaserShotGun : Weapon_ShotGun
         spr.sprite = getSpriteFromSheet(sprites, "LaserRifle_Handle");
         spr.sortingOrder = 10;
 
-        GameObject energy = createSpriteObject("LaserRifle_Energy", getSpriteFromSheet(sprites, "LaserRifle_Energy"), 9, 
-        this, scale: new Vector3(0.87f, 0.83f, 1f));
-
         Sprite Sprite_BP = getSpriteFromSheet(sprites, "LaserRifle_BarrelPiece");
         GameObject[] BPs = new GameObject[4];
         BPs[0] = createSpriteObject("BarrelPiece_00", Sprite_BP, 10, this, position: new Vector3(0.06f, 0, 0));
