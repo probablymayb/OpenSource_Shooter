@@ -1214,9 +1214,10 @@ GameObject:
   - component: {fileID: 5281534748381807788}
   - component: {fileID: 4218173817368846470}
   - component: {fileID: 5506282608346415250}
+  - component: {fileID: 1942774131348269974}
   m_Layer: 8
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1423,6 +1424,7 @@ MonoBehaviour:
   - {fileID: 1891017299485531457}
   dashForce: 20
   dashSFXHandler: {fileID: 1891017297664046632}
+  dashCooldown: 2
 --- !u!114 &1891017298328505591
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1559,6 +1561,19 @@ MonoBehaviour:
     InterpolateOption: 1
     InterpolateMoveTowardsSpeed: 1
     InterpolateLerpSpeed: 0
+--- !u!114 &1942774131348269974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1891017298328505595}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c931b3825d56efc498bd548991d69175, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHp: 100
 --- !u!1 &1891017298393692681
 GameObject:
   m_ObjectHideFlags: 0
@@ -3536,6 +3551,10 @@ MonoBehaviour:
   debug: 0
   _UseRate: 0
   _UseRateDefault: 0
+  maxAmmo: 30
+  currentAmmo: 0
+  reloadTime: 2
+  infiniteAmmo: 0
   _CHARGE_DURATION: 0
   _CHARGE_DURATION_Default: 0
   notes: This is a derived class from the base class Weapon. It has a primary action
@@ -3858,6 +3877,10 @@ MonoBehaviour:
   debug: 0
   _UseRate: 0
   _UseRateDefault: 0
+  maxAmmo: 30
+  currentAmmo: 0
+  reloadTime: 2
+  infiniteAmmo: 0
   _CHARGE_DURATION: 0
   _CHARGE_DURATION_Default: 0
   notes: This is a derived class from the base class Weapon. It has a primary action
