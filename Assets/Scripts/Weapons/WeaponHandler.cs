@@ -84,6 +84,7 @@ public class WeaponHandler : MonoBehaviour
 
         currentWeapon = weapons[currentWeaponIndex];
         currentWeapon.gameObject.SetActive(true);
+        currentWeapon.reload();
 
         // 무기 전환 시 Animator 파라미터 설정
         animator.SetInteger("WeaponType", currentWeaponIndex);  // ex. 0 = LaserRifle, 1 = AutoCharge 등
@@ -172,4 +173,21 @@ public class WeaponHandler : MonoBehaviour
     }
 
     //UI
+
+
+    public void GetItemWeapon(Item item){
+        Weapon now = currentWeapon;
+        Weapon get = item.weapon;
+
+        weapons[currentWeaponIndex] = get;
+        currentWeapon = get;
+
+        get.transform.SetParent(now.transform.parent, false);
+        now.transform.SetParent(item.transform, false);
+
+        item.weapon = now;
+
+        get.reload();
+        now.stop();
+    }
 }

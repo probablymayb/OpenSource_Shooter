@@ -29,7 +29,6 @@ public class WaitingRoomUIController : MonoBehaviour
         }
 
         countdownText.text = "";
-        countdownText.gameObject.SetActive(false);
 
         if (PhotonNetwork.IsMasterClient)
         {

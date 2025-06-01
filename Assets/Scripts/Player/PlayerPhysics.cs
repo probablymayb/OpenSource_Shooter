@@ -15,6 +15,8 @@ public class PlayerPhysics : Physics2DHandler
 
     public bool CanMove { get; set; }
 
+    private GameObject collided;
+
     protected override void Awake()
     {
         base.Awake();
@@ -36,6 +38,9 @@ public class PlayerPhysics : Physics2DHandler
                 collision.TryGetComponent(out EnvironmentObjectTrigger trigger);
                 trigger.SetActiveObjects();
             }
+
+            Item item = collision.gameObject.GetComponent<Item>();
+            if(item != null) this.collided = item.gameObject;
         }
     }
 
@@ -43,7 +48,12 @@ public class PlayerPhysics : Physics2DHandler
     {
         if (collision != null)
         {
-
+            Item item = collision.gameObject.GetComponent<Item>();
+            if(item != null) this.collided = null;
         }
+    }
+
+    public GameObject getCollidedObject(){
+        return collided;
     }
 }

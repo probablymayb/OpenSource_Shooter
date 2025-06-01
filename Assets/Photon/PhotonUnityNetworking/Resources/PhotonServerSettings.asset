@@ -40,8 +40,7 @@ MonoBehaviour:
   - Fire
   - RespawnSpaceship
   - RPC_Fire
-  - OnRespawn
-  - TakeDamage
+  - RPC_Fire_Cloned
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0

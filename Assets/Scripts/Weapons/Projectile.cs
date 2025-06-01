@@ -32,11 +32,14 @@ public class Projectile : MonoBehaviourPun
     private BoxCollider2D _Collider;
     private SpriteRenderer _Renderer;
     private SoundHandlerLocal _Sfx;
+    private Transform cloneProjectiles_t;
 
     private Vector3 travelDirection;
     private float movement;
     private bool hasLaunched;
     private int impactCount;
+
+    public bool isRPCFire = false;
 
     #endregion
 
@@ -47,6 +50,7 @@ public class Projectile : MonoBehaviourPun
         TryGetComponent(out _Renderer);
         TryGetComponent(out _Collider);
 
+
             if (_Collider == null)
             {
                 _Collider = gameObject.AddComponent<BoxCollider2D>();
@@ -55,6 +59,9 @@ public class Projectile : MonoBehaviourPun
                 _Collider.size = new Vector2(0.5f, 0.2f);
                 Debug.LogWarning($"[Projectile] Collider was missing, added new one!");
             }
+
+        cloneProjectiles_t = GameObject.Find("CloneProjectiles").transform;
+
     }
 
     private void Start()
@@ -107,18 +114,76 @@ public class Projectile : MonoBehaviourPun
         _Renderer.enabled = _Collider.enabled = value;
     }
 
-    public void Fire(bool isRight)
+    //set projectile launch sound volume
+    public void setVolume(float volume){
+        _Sfx.setVolume(volume);
+    }
+
+    /// <summary>
+    /// To launch the projectile towards <see cref="travelDirection"/>.
+    /// </summary>
+    
+    //네트워크가 없을 때 실행되는 함수
+    public void Fire(bool isRight){
+        this.Fire(0, isRight);
+    }
+    public void Fire(float rotateDiff, bool isRight)
     {
-        photonView.RPC("RPC_Fire", RpcTarget.All, isRight);
+        if(isRPCFire) {
+            photonView.RPC("RPC_Fire", RpcTarget.All, rotateDiff, isRight);
+            Debug.Log($"[DEBUG] PhotonNetwork.IsConnected: {PhotonNetwork.IsConnected}, IsConnectedAndReady: {PhotonNetwork.IsConnectedAndReady}, InRoom: {PhotonNetwork.InRoom}");
+            Debug.Log($"[DEBUG] PhotonManager._currentPhase : {PhotonManager._currentPhase}");
+        }
+        else {
+            Debug.Log($"[DEBUG] PhotonNetwork.IsConnected: {PhotonNetwork.IsConnected}, IsConnectedAndReady: {PhotonNetwork.IsConnectedAndReady}, InRoom: {PhotonNetwork.InRoom}");
+            Debug.Log($"[DEBUG] PhotonManager._currentPhase : {PhotonManager._currentPhase}");
+            /*GameObject clonedProjectile = Instantiate(gameObject, transform.position, transform.rotation);
+            Projectile clonedProjectileScript = clonedProjectile.GetComponent<Projectile>();
+            //clonedProjectileScript.setVolume(_Sfx.getVolume());
+            clonedProjectileScript.Fire_Cloned(rotateDiff);*/
+        }
+
+    }
+
+    private void Fire_Cloned(float rotateDiff){
+        bool isRight = PlayerBodyPartsHandler.isRightDirection;
+
+        //총알이 보이도록 설정
+        SetActive(true);
+        hasLaunched = true;
+
+        //방향 설정
+        travelDirection = isRight ? Vector3.right : -Vector3.right;
+        Quaternion rotate = Quaternion.Euler(0, 0, rotateDiff);
+        transform.rotation = rotate * transform.rotation;
+
+        transform.parent = null;
+        _Sfx.PlaySound(0);
+
+        Destroy(gameObject, LifeTime);
+    }
+    //네트워크가 있을 때 실행되는 함수
+    [PunRPC]
+    private void RPC_Fire(float rotateDiff, bool isRight)
+    {
+        transform.SetParent(cloneProjectiles_t);
+        tag = "clone";
+        setVolume(_Sfx.getVolume());
+        RPC_Fire_Cloned(rotateDiff, isRight);
     }
 
     [PunRPC]
-    private void RPC_Fire(bool isRight)
+    private void RPC_Fire_Cloned(float rotateDiff, bool isRight)
     {
+        SetActive(true);
         hasLaunched = true;
+
+        //방향 설정
         travelDirection = isRight ? Vector3.right : -Vector3.right;
-        transform.parent = null;
-        _Sfx?.PlaySound(0);
+        Quaternion rotate = Quaternion.Euler(0, 0, rotateDiff);
+        transform.rotation = rotate * transform.rotation;
+
+        _Sfx.PlaySound(0);
 
         //주의: IsMine인 쪽만 Destroy() 예약
         if (photonView.IsMine)
@@ -140,24 +205,6 @@ public class Projectile : MonoBehaviourPun
         }
     }
 
-    /// <summary>
-    /// To launch the projectile towards <see cref="travelDirection"/>.
-    /// </summary>
-    public void Fire()
-    {
-        //Debug.Log("Projectile: Fire()");
-        hasLaunched = true;
-        _Sfx.PlaySound(0);
-
-        // Set travel direction based on the current direction of the body
-        if (!PlayerBodyPartsHandler.isRightDirection)
-            travelDirection = -Vector3.right;
-        else
-            travelDirection = Vector3.right;
-
-        transform.parent = null;
-        Destroy(gameObject, LifeTime);
-    }
 
     /// <summary>
     /// Moves the projectile towards <see cref="travelDirection"/> using transform.Translate.
