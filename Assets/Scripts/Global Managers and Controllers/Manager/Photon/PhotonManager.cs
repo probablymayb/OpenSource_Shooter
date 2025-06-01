@@ -37,7 +37,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IManager
 
     public void Release()
     {
-
+        OnDisconnected(DisconnectCause.ApplicationQuit);
     }
 
     #region 포톤 서버 연결 및 로비 입장
@@ -102,12 +102,13 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IManager
         if (PhotonNetwork.CurrentRoom.PlayerCount == maxPlayers)
         {
             // 이미 다른 사람이 있어 바로 매칭 완료 → 대기방 씬 이동
-            _currentPhase = GamePhase.Waiting;
+            _currentPhase = GamePhase.InGame;
             PhotonNetwork.LoadLevel(_waitingRoomSceneName);
         }
         else
         {
             // 1명만 입장했을 경우 → 대기
+            _currentPhase = GamePhase.Waiting;
             Debug.Log("상대방 기다리는 중...");
         }
     }
@@ -118,7 +119,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IManager
 
         if (PhotonNetwork.CurrentRoom.PlayerCount == maxPlayers)
         {
-            _currentPhase = GamePhase.Waiting;
+            _currentPhase = GamePhase.InGame;
             PhotonNetwork.LoadLevel(_waitingRoomSceneName);
         }
     }
