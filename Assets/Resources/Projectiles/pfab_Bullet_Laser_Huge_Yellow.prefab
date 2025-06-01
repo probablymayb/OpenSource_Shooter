@@ -150,6 +150,7 @@ MonoBehaviour:
   _Speed: 30
   _LifeTime: 1
   hitPFX: {fileID: 5089116883865689445, guid: 14a727ad5b1b61044988ebbf6f081adc, type: 3}
+  isRPCFire: 0
 --- !u!114 &5364024512209706106
 MonoBehaviour:
   m_ObjectHideFlags: 0
