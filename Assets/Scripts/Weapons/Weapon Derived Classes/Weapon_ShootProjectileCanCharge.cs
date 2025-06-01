@@ -125,26 +125,61 @@ public class Weapon_ShootProjectileCanCharge : Weapon
     {
         base.PrimaryAction(value);
 
-        if(primaryProjectile == null && canUse)
+        // 재장전 중이면 발사 불가
+        if (isReloading)
+        {
+            Debug.Log("Currently reloading!");
+            return;
+        }
+
+        // 탄약이 없으면 자동 재장전
+        if (!HasAmmo)
+        {
+            Debug.Log("Out of ammo! Auto reloading...");
+            Reload();
+            return;
+        }
+
+        // canUse 체크 (연사 속도 제한)
+        if (!canUse)
+        {
+            return;
+        }
+
+        // 탄약 소비 (멀티/싱글 모두에서 실행)
+        if (!ConsumeAmmo())
+        {
+            Debug.Log("Failed to consume ammo!");
+            return;
+        }
+
+        // 멀티플레이 환경에서 총알 생성
+        if (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame)
         {
             string prefabName = basicProjectilePrefab.name;
-            GameObject bullet = PhotonNetwork.Instantiate("Projectiles/" + prefabName, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+            GameObject bullet = PhotonNetwork.Instantiate("Projectiles/" + prefabName,
+                projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+
             bullet.transform.SetParent(projectileSpawnPoint);
             primaryProjectile = bullet.GetComponent<Projectile>();
         }
-
-        // Can be executed only if there is a projectile available and canUse is true.
-        if (primaryProjectile != null && canUse)
+        // 싱글플레이어 환경
+        else if (primaryProjectile == null)
         {
-            // Play the basic animation if WeaponAnim_ShootProjectileCanCharge is available.
+            SpawnProjectiles();
+        }
+
+        // 발사 처리
+        if (primaryProjectile != null)
+        {
+            // 애니메이션
             animator.SetInteger("WeaponAction", (int)WeaponAction.BasicShot);
 
-            // Make the camera Shake.
+            // 카메라 흔들림
             CameraShake.Shake(duration: 0.075f, shakeAmount: 0.1f, decreaseFactor: 3f);
 
-            // Call the method Fire on the projectile to launch it towards the crosshair direction.
+            // 발사 방향
             bool isRight = PlayerBodyPartsHandler.isRightDirection;
-            // Enable the projectile.
             primaryProjectile.SetActive(true);
 
             if (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame)
@@ -156,15 +191,15 @@ public class Weapon_ShootProjectileCanCharge : Weapon
                 primaryProjectile.Fire();
             }
 
-            // We make it null to give room to a new instantiated projectile.
+            // 다음 발사를 위해 null로 설정
             primaryProjectile = null;
 
-            // We make it false to execute the base Update actions which makes it true again after UseRate duration is reached,
-            // which then calls the method OnCanUse() that's used to spawn new projectiles and to return to the Idle anim.
+            // 연사 속도 제한
             canUse = false;
+
+            Debug.Log($"Shot fired! Remaining ammo: {currentAmmo}/{maxAmmo}");
         }
     }
-
     public override void SecondaryAction(bool value)
     {
         base.SecondaryAction(value);

@@ -2144,9 +2144,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debug: 0
   _UseRate: 0
-  notes: This is a derived class from the base class Weapon. It has a primary action
+  notes: 'This is a derived class from the base class Weapon. It has a primary action
     to shoot projectiles based on a UseRate value and a secondary action with a timer
-    that after reaching its duration will shoot a secondary projectile.
+    that after reaching its duration will shoot a secondary projectile. '
   basicProjectilePrefab: {fileID: 1799498612625121595, guid: 760aecbdd621ba2478a32a6a7ea5f887,
     type: 3}
   chargedProjectilePrefab: {fileID: 1799498612625121595, guid: 711af070ba424d1429c60882816125ee,
@@ -2300,9 +2300,10 @@ GameObject:
   - component: {fileID: 5281534748381807788}
   - component: {fileID: 4218173817368846470}
   - component: {fileID: 5506282608346415250}
+  - component: {fileID: 8027682483995917927}
   m_Layer: 8
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2645,6 +2646,19 @@ MonoBehaviour:
     InterpolateOption: 1
     InterpolateMoveTowardsSpeed: 1
     InterpolateLerpSpeed: 0
+--- !u!114 &8027682483995917927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1891017298328505595}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c931b3825d56efc498bd548991d69175, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHp: 100
 --- !u!1 &1891017298353449989
 GameObject:
   m_ObjectHideFlags: 0
@@ -5547,15 +5561,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ddfc27c36f61c80478b57e06195306a5, type: 3}
---- !u!1 &5381773117904946622 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5805658982914378135, guid: ddfc27c36f61c80478b57e06195306a5,
-    type: 3}
-  m_PrefabInstance: {fileID: 1891017298845781033}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &5381773117904946621 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5805658982914378132, guid: ddfc27c36f61c80478b57e06195306a5,
+    type: 3}
+  m_PrefabInstance: {fileID: 1891017298845781033}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5381773117904946622 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5805658982914378135, guid: ddfc27c36f61c80478b57e06195306a5,
     type: 3}
   m_PrefabInstance: {fileID: 1891017298845781033}
   m_PrefabAsset: {fileID: 0}
