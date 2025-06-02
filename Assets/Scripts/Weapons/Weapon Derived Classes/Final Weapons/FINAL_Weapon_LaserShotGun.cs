@@ -35,19 +35,6 @@ public class FINAL_Weapon_LaserShotGun : Weapon_ShotGun
 
         GameObject muzzle = createSpriteObject("Muzzle", getSpriteFromSheet(sprites, "LaserRifle_Muzzle"), 10, 
         BPs[3], position: new Vector3(0.12f, 0, 0));
-
-
-        /*
-        //animation
-        Animation ani = gameObject.AddComponent<Animation>();
-        AnimationClip Idle = getAnimationClip("LaserRifle_Auto-Charge/Idle.anim");
-        ani.clip = Idle;
-        ani.AddClip(Idle, "Idle");
-        ani.AddClip(getAnimationClip("LaserRifle_Auto-Charge/BasicShot.anim"), "BasicShot");
-        ani.AddClip(getAnimationClip("LaserRifle_Auto-Charge/BasicShot.anim"), "StrongShot");
-        anim = gameObject.AddComponent<WeaponAnim_ShotGun>();
-        */
-        //this.animator = getAnimatior();
     }
 
     public override void reload(){
