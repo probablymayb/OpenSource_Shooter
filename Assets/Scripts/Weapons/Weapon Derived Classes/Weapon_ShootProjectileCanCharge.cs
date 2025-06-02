@@ -17,14 +17,18 @@ public class Weapon_ShootProjectileCanCharge : Weapon
     // ---- https://twitter.com/tadadosi ----
     // --------------------------------------
 
-    protected float CHARGE_DURATION { 
-        get { return _CHARGE_DURATION; } 
-        private set { _CHARGE_DURATION = value; } }
+    protected float CHARGE_DURATION
+    {
+        get { return _CHARGE_DURATION; }
+        private set { _CHARGE_DURATION = value; }
+    }
     [SerializeField] protected float _CHARGE_DURATION;
 
-    protected float CHARGE_DURATION_Default { 
-        get { return _CHARGE_DURATION_Default; } 
-        private set { _CHARGE_DURATION_Default = value; } }
+    protected float CHARGE_DURATION_Default
+    {
+        get { return _CHARGE_DURATION_Default; }
+        private set { _CHARGE_DURATION_Default = value; }
+    }
     [SerializeField] protected float _CHARGE_DURATION_Default;
 
     [TextArea(5, 10)]
@@ -53,7 +57,8 @@ public class Weapon_ShootProjectileCanCharge : Weapon
     protected Vector3 CS_SC;
     protected Vector3 CS_SF;
 
-    public override void stop(){
+    public override void stop()
+    {
         base.stop();
         isReceivingInput = false;
         OnChargeCancel();
@@ -96,14 +101,15 @@ public class Weapon_ShootProjectileCanCharge : Weapon
             OnChargeCancel();
     }
 
-    protected override void calculateUseRate(){
+    protected override void calculateUseRate()
+    {
         base.calculateUseRate();
         _CHARGE_DURATION = _CHARGE_DURATION_Default / useRateValues[useRateIndex];
 
-/////////////////////////////////////////////////////
-/// 애니메이션 구현?
-/// 발사 속도가 빠르면 애니메이션도 똑같이 빠르게 재생되도록 설정
-/// 기본 발사는 속도가 느려도 최소치가 있음
+        /////////////////////////////////////////////////////
+        /// 애니메이션 구현?
+        /// 발사 속도가 빠르면 애니메이션도 똑같이 빠르게 재생되도록 설정
+        /// 기본 발사는 속도가 느려도 최소치가 있음
         /*
         //change animation speed from default speed
         anim.SetAnimationSpeed("BasicShot", (_UseRate<0.125f)?(0.125f/_UseRate):(1));
@@ -163,10 +169,12 @@ public class Weapon_ShootProjectileCanCharge : Weapon
     }
 
     //발사 함수(상속받은 클래스가 수정 가능)
-    protected virtual void PrimaryFire(bool isRight) {
+    protected virtual void PrimaryFire(bool isRight)
+    {
         primaryProjectile.Fire(isRight);
     }
-    protected virtual void SecondaryFire(bool isRight) {
+    protected virtual void SecondaryFire(bool isRight)
+    {
         secondaryProjectile.Fire(isRight);
     }
 
@@ -174,62 +182,18 @@ public class Weapon_ShootProjectileCanCharge : Weapon
     {
         base.PrimaryAction(value);
 
-        // 재장전 중이면 발사 불가
-        if (isReloading)
-        {
-            Debug.Log("Currently reloading!");
-            return;
-        }
-
-        // 탄약이 없으면 자동 재장전
-        if (!HasAmmo)
-        {
-            Debug.Log("Out of ammo! Auto reloading...");
-            Reload();
-            return;
-        }
-
-        // canUse 체크 (연사 속도 제한)
-        if (!canUse)
-        {
-            return;
-        }
-
-        // 탄약 소비 (멀티/싱글 모두에서 실행)
-        if (!ConsumeAmmo())
-        {
-            Debug.Log("Failed to consume ammo!");
-            return;
-        }
-
-        // 멀티플레이 환경에서 총알 생성
-        if (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame)
+        if (primaryProjectile == null && canUse)
         {
             string prefabName = basicProjectilePrefab.name;
-            GameObject bullet = PhotonNetwork.Instantiate("Projectiles/" + prefabName,
-                projectileSpawnPoint.position, projectileSpawnPoint.rotation);
-
+            GameObject bullet = PhotonNetwork.Instantiate("Projectiles/" + prefabName, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
             bullet.transform.SetParent(projectileSpawnPoint);
             primaryProjectile = bullet.GetComponent<Projectile>();
             bullet.gameObject.tag = "First_PrimaryProjectile";
         }
-        // 싱글플레이어 환경
-        else if (primaryProjectile == null)
+
+        // Can be executed only if there is a projectile available and canUse is true.
+        if (primaryProjectile != null && canUse)
         {
-// <<<<<<< HEAD
-//             SpawnProjectiles();
-//         }
-
-//             // 애니메이션
-//             animator.SetInteger("WeaponAction", (int)WeaponAction.BasicShot);
-
-//             // 카메라 흔들림
-//             CameraShake.Shake(duration: 0.075f, shakeAmount: 0.1f, decreaseFactor: 3f);
-
-//             // 발사 방향
-//             bool isRight = PlayerBodyPartsHandler.isRightDirection;
-//             primaryProjectile.SetActive(true);
-// =======
             bool isRight = PlayerBodyPartsHandler.isRightDirection;
             // Play the basic animation if WeaponAnim_ShootProjectileCanCharge is available.
             animator.SetInteger("WeaponAction", (int)WeaponAction.BasicShot);
@@ -243,27 +207,22 @@ public class Weapon_ShootProjectileCanCharge : Weapon
             // Enable the projectile.
             //primaryProjectile.SetActive(true);
 
-
             //네트워크에 있을시 발사 방향을 건네줌?
             primaryProjectile.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame);
 
-// <<<<<<< HEAD
-//             // 다음 발사를 위해 null로 설정
-//             primaryProjectile = null;
-// =======
             //발사 함수 호출
             PrimaryFire(isRight);
-            
+
             //투사체를 삭제하지 않음
             // We make it null to give room to a new instantiated projectile.
             //primaryProjectile = null;
 
-            // 연사 속도 제한
+            // We make it false to execute the base Update actions which makes it true again after UseRate duration is reached,
+            // which then calls the method OnCanUse() that's used to spawn new projectiles and to return to the Idle anim.
             canUse = false;
-
-            Debug.Log($"Shot fired! Remaining ammo: {currentAmmo}/{maxAmmo}");
         }
     }
+
     public override void SecondaryAction(bool value)
     {
         base.SecondaryAction(value);
