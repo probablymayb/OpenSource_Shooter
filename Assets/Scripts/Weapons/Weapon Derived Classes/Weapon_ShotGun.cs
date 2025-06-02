@@ -170,50 +170,49 @@ public class Weapon_ShotGun : Weapon
     #region ---------------------------- SHOOT FUNCTION
 
     //fire func
-    protected virtual void PrimaryFire(bool isRight) {
-        primaryProjectile.setVolume(2f/3);
+    protected virtual void PrimaryFire(bool isRight)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            GameObject bullet = PhotonNetwork.Instantiate("Projectiles/" + basicProjectilePrefab.name,
+                projectileSpawnPoint.position, projectileSpawnPoint.rotation);
 
-        for(int i=0; i<3; i++) {
-            primaryProjectile.Fire(Random.Range(-10, 10), isRight);
-            primaryProjectile.Speed = 20f*Random.Range(0.9f, 1.1f);
+            Projectile proj = bullet.GetComponent<Projectile>();
+            proj.Speed = 20f * Random.Range(0.9f, 1.1f);
+            proj.setVolume(2f / 3);
+            proj.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame);
+            proj.Fire(Random.Range(-10f, 10f), isRight);  // 각도 차이
         }
-        primaryProjectile.Fire(isRight);
     }
 
-    protected virtual void SecondaryFire(bool isRight) {
-        secondaryProjectile.setVolume(2f/5);
-        for(int i=0; i<7; i++) {
-            secondaryProjectile.Fire(Random.Range(-20, 20), isRight);
-            secondaryProjectile.Speed = 20f*Random.Range(0.9f, 1.1f);
+    protected virtual void SecondaryFire(bool isRight)
+    {
+        for (int i = 0; i < 7; i++)
+        {
+            GameObject bullet = PhotonNetwork.Instantiate("Projectiles/" + strongProjectilePrefab.name,
+                projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+
+            Projectile proj = bullet.GetComponent<Projectile>();
+            proj.Speed = 20f * Random.Range(0.9f, 1.1f);
+            proj.setVolume(2f / 5);
+            proj.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame);
+            proj.Fire(Random.Range(-20f, 20f), isRight);
         }
-        secondaryProjectile.Fire(isRight);
     }
+
 
     public override void PrimaryAction(bool value)
     {
         base.PrimaryAction(value);
 
-        if (primaryProjectile == null && canUse)
-        {
-            string prefabName = basicProjectilePrefab.name;
-            GameObject bullet = PhotonNetwork.Instantiate("Projectiles/" + prefabName, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
-            bullet.transform.SetParent(projectileSpawnPoint);
-            primaryProjectile = bullet.GetComponent<Projectile>();
-            bullet.gameObject.tag = "First_PrimaryProjectile";
-        }
-
         // Can be executed only if there is a projectile available and canUse is true.
-        if (primaryProjectile != null && canUseTotal)
+        if (canUseTotal)
         {
             bool isRight = PlayerBodyPartsHandler.isRightDirection;
 
             animator.SetInteger("WeaponAction", (int)WeaponAction.BasicShot);
 
-            // Make the camera Shake.
             CameraShake.Shake(CS_P.x, CS_P.y, CS_P.z);
-
-            //네트워크에 있을시 발사 방향을 건네줌?
-            primaryProjectile.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame);
 
             PrimaryFire(isRight);
 
@@ -225,24 +224,16 @@ public class Weapon_ShotGun : Weapon
     {
         base.SecondaryAction(value);
 
-        // Can be executed only if there is a projectile available and canUse is true.
-        if (secondaryProjectile != null && canUseTotal)
+        if (canUseTotal)
         {
             bool isRight = PlayerBodyPartsHandler.isRightDirection;
-            // Play the basic animation if WeaponAnim_ShootProjectileCanCharge is available.
+
             animator.SetInteger("WeaponAction", (int)WeaponAction.StrongShot);
 
-            // Make the camera Shake.
             CameraShake.Shake(CS_S.x, CS_S.y, CS_S.z);
-
-            // Call the method Fire on the projectile to launch it towards the crosshair direction.
-            //네트워크에 있을시 발사 방향을 건네줌?
-            secondaryProjectile.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame);
 
             SecondaryFire(isRight);
 
-            // We make it false to execute the base Update actions which makes it true again after UseRate duration is reached,
-            // which then calls the method OnCanUse() that's used to spawn new projectiles and to return to the Idle anim.
             canUseStrong = false;
         }
     }
