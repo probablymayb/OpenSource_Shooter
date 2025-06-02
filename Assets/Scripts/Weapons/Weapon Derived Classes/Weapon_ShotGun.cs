@@ -172,7 +172,7 @@ public class Weapon_ShotGun : Weapon
     //fire func
     protected virtual void PrimaryFire(bool isRight)
     {
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 4; i++)
         {
             GameObject bullet = PhotonNetwork.Instantiate("Projectiles/" + basicProjectilePrefab.name,
                 projectileSpawnPoint.position, projectileSpawnPoint.rotation);
@@ -187,7 +187,7 @@ public class Weapon_ShotGun : Weapon
 
     protected virtual void SecondaryFire(bool isRight)
     {
-        for (int i = 0; i < 7; i++)
+        for (int i = 0; i < 8; i++)
         {
             GameObject bullet = PhotonNetwork.Instantiate("Projectiles/" + strongProjectilePrefab.name,
                 projectileSpawnPoint.position, projectileSpawnPoint.rotation);
