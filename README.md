@@ -20,6 +20,7 @@
 
 - [사용자 가이드](USER_GUIDE.md) - 설치 및 게임 플레이 방법
 - [개발자 가이드](DEVELOPER_GUIDE.md) - 프로젝트 구조 및 주요 시스템 설명
+- [개발자 가이드 | V2](DEVELOPER_GUIDE_V2.md) - 25-1 단국대 오픈소스SW 프로젝트 진행 결과 새롭게 추가된 구조 및 주요 시스템 설명
 - [설치 가이드](INSTALLATION.md) - 개발 환경 구성 방법
 
 <details>
