@@ -1,10 +1,11 @@
 ﻿using Photon.Pun;
 using UnityEngine;
+using static UnityEngine.GridBrushBase;
 
 /// <summary>
 /// Controls the behaviour of the player's body based on MouseInput.vectorFromPlayerToMouseWorldPos.
 /// </summary>
-public class PlayerBodyPartsHandler : MonoBehaviour
+public class PlayerBodyPartsHandler : MonoBehaviour, IPunObservable
 {
     // --------------------------------------
     // ----- 2D Isometric Shooter Study -----
@@ -32,15 +33,19 @@ public class PlayerBodyPartsHandler : MonoBehaviour
     private LookAt2Dv2Updater lookAtUpdater;
     private LookAt2Dv2Handler lookAtHandler;
     private PlayerShoulderSecondary shoulderSecondary;
+    private CrosshairMouse crosshairMouse;
 
     // To grant access to other classes if the need to know the current direction 
     // of the body (e.g. Projectile class to set travel direction)
     public static bool isRightDirection;
 
+    public bool IsLeftDirection { get; private set; } // 공개 접근용
+
     private bool isHandAndHeadOnFront;
     private bool isLookAtMouse;
+    private bool isFlipAxis;
 
-    private enum Direction { Left, Right }
+    public enum Direction { Left, Right }
 
     private PhotonView photonView;
 
@@ -50,6 +55,7 @@ public class PlayerBodyPartsHandler : MonoBehaviour
         isRightDirection = true;
         TryGetComponent(out lookAtUpdater);
         TryGetComponent(out lookAtHandler);
+        crosshairMouse = GetComponentInChildren<CrosshairMouse>();
         shoulderSecondary = FindObjectOfType<PlayerShoulderSecondary>();
         photonView = GetComponent<PhotonView>();
     }
@@ -72,6 +78,12 @@ public class PlayerBodyPartsHandler : MonoBehaviour
         UpdateLookAtTarget();
         UpdateRenderersLayerOrder();
         UpdateBodyPartsDirection();
+
+        if (!photonView.IsMine)
+        {
+            SetBodyPartsDirection(IsLeftDirection ? Direction.Left : Direction.Right);
+        }
+
     }
 
     private void UpdateLookAtTarget()
@@ -94,14 +106,14 @@ public class PlayerBodyPartsHandler : MonoBehaviour
         // and realizing how the parts should overlap one another. Maybe in the future it could be a good idea to make this values private and serialized
         // to expose them if a quick change in the Inspector is needed.
 
-        if (((CrosshairMouse.AimDirection.y < 0f && TadaInput.IsMouseActive) || 
+        if (((crosshairMouse.AimDirection.y < 0f && TadaInput.IsMouseActive) || 
             (CrosshairJoystick.AimDirection.y < -0.1f && !TadaInput.IsMouseActive)) && isHandAndHeadOnFront) // Hand and Head behind
         {
             SetRenderersLayerOrder(handRenderers, 9);
             SetRenderersLayerOrder(headRenderers, 13);
             isHandAndHeadOnFront = false;
         }
-        else if (((CrosshairMouse.AimDirection.y > 0f && TadaInput.IsMouseActive) ||
+        else if (((crosshairMouse.AimDirection.y > 0f && TadaInput.IsMouseActive) ||
             (CrosshairJoystick.AimDirection.y > 0f && !TadaInput.IsMouseActive)) && !isHandAndHeadOnFront) // Hand and Head on front
         {
             SetRenderersLayerOrder(handRenderers, 12);
@@ -126,14 +138,12 @@ public class PlayerBodyPartsHandler : MonoBehaviour
         // Checks if the mouse is active or a joystick is being used and uses either the vector playerPos -> mouseWorldPos or
         // the AimAxis (Joystick right stick) X value to determine if the body should be poiting to the left or to the right.
 
-        if ((CrosshairMouse.AimDirection.x < -0.1f && TadaInput.IsMouseActive) ||
-            (CrosshairJoystick.AimDirection.x < -0.1f && !TadaInput.IsMouseActive))
+        if ((crosshairMouse.AimDirection.x < -0.1f && TadaInput.IsMouseActive))
         {
             SetBodyPartsDirection(Direction.Left);
         }
 
-        if ((CrosshairMouse.AimDirection.x > 0.1f && TadaInput.IsMouseActive) ||
-            (CrosshairJoystick.AimDirection.x > 0.1f && !TadaInput.IsMouseActive))
+        if ((crosshairMouse.AimDirection.x > 0.1f && TadaInput.IsMouseActive))
         {
             SetBodyPartsDirection(Direction.Right);
         }
@@ -142,52 +152,60 @@ public class PlayerBodyPartsHandler : MonoBehaviour
     /// <summary>
     /// Method to visually flip the direction of the body.
     /// </summary>
-    private void SetBodyPartsDirection(Direction direction)
+    public void SetBodyPartsDirection(Direction direction)
     {
         switch (direction)
         {
             case Direction.Left:
-                // bool to do this action once
                 if (isRightDirection)
                 {
+                    Debug.Log("왼쪽으로 플립");
                     lookAtHandler.FlipAxis(true);
 
-                    // Invert the hips
                     if (hips != null)
-                        hips.transform.localScale -= Vector3.right * 2;
+                    {
+                        Vector3 scale = hips.transform.localScale;
+                        scale.x = -Mathf.Abs(scale.x); // 항상 -1
+                        hips.transform.localScale = scale;
+                    }
 
-                    // Invert the upperBody
                     if (upperBody != null)
-                        upperBody.transform.localScale -= Vector3.right * 2;
+                    {
+                        Vector3 scale = upperBody.transform.localScale;
+                        scale.x = -Mathf.Abs(scale.x); // 항상 -1
+                        upperBody.transform.localScale = scale;
+                    }
 
-                    // Stop this action
                     isRightDirection = false;
                 }
                 break;
 
             case Direction.Right:
-                // bool to do this action once
                 if (!isRightDirection)
                 {
+                    Debug.Log("오른쪽으로 플립");
                     lookAtHandler.FlipAxis(false);
 
-                    // Flip the hips
                     if (hips != null)
-                        hips.transform.localScale += Vector3.right * 2;
+                    {
+                        Vector3 scale = hips.transform.localScale;
+                        scale.x = Mathf.Abs(scale.x); // 항상 +1
+                        hips.transform.localScale = scale;
+                    }
 
-                    // Flip the upperBody
                     if (upperBody != null)
-                        upperBody.transform.localScale += Vector3.right * 2;
+                    {
+                        Vector3 scale = upperBody.transform.localScale;
+                        scale.x = Mathf.Abs(scale.x); // 항상 +1
+                        upperBody.transform.localScale = scale;
+                    }
 
-                    // Stop this action
                     isRightDirection = true;
                 }
                 break;
-
-            default:
-                break;
         }
     }
+
 
     private void CheckIfMissingClasses()
     {
@@ -195,6 +213,27 @@ public class PlayerBodyPartsHandler : MonoBehaviour
         {
             Debug.LogWarning(gameObject.name + ": Missing behaviour classes!");
             return;
+        }
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            bool isLeftDirection = crosshairMouse.AimDirection.x < 0.1f;
+            stream.SendNext(isLeftDirection);
+        }
+        else
+        {
+            bool isLeftDirection = (bool)stream.ReceiveNext();
+
+            Debug.Log("isLeftDirection: " + isLeftDirection);
+
+            isRightDirection = isLeftDirection;
+            SetBodyPartsDirection(isLeftDirection ? Direction.Left : Direction.Right);
+
+            
+
         }
     }
 }

@@ -27,6 +27,8 @@ public class SoundHandlerLocal : SoundEmitter
 
     [SerializeField] private bool isPlayAllSounds = false;
 
+    private float publicVolume = 1f;
+
     private void Start()
     {
         if (isLoop)
@@ -49,7 +51,7 @@ public class SoundHandlerLocal : SoundEmitter
 
     public void PlaySound(AudioClip clip, float volume, float minPitch, float maxPitch, bool isPlayOneShot = false)
     {
-        _Source.volume = volume;
+        _Source.volume = volume * publicVolume;
         float pitch = Random.Range(minPitch, maxPitch);
         _Source.pitch = pitch;
 
@@ -85,5 +87,12 @@ public class SoundHandlerLocal : SoundEmitter
                 return;
             }
         }
+    }
+
+    public void setVolume(float volume){
+        publicVolume = volume;
+    }
+    public float getVolume(){
+        return publicVolume;
     }
 }

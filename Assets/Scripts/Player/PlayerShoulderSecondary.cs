@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Photon.Pun;
+using UnityEngine;
 
 /// <summary>
 /// This class uses the Crosshair AimDirection and other properties like rate, min offset angle and
@@ -32,34 +33,48 @@ public class PlayerShoulderSecondary : MonoBehaviour
     [SerializeField] private bool isUpdateCalledLocally = false;
 
     private float clampAngle;
+    private CrosshairMouse crosshairMouse;
+
+    public void Awake()
+    {
+        crosshairMouse = transform.root.GetComponentInChildren<CrosshairMouse>();
+    }
 
     private void Update()
     {
-        if (!isUpdateCalledLocally)
-            return;
-        UpdateRotation();
+        if(PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame)
+        {
+            if (!isUpdateCalledLocally)
+                return;
+            UpdateRotation();
+        }
+        
     }
 
     public void UpdateRotation()
     {
         // I got this hardcoded values after testing them in the Inspector.
-        if (PlayerBodyPartsHandler.isRightDirection)
+        if (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame)
         {
-            minOffsetAngle = 0f;
-            maxOffsetAngle = 50f;
-        }
-        else
-        {
-            minOffsetAngle = -50f;
-            maxOffsetAngle = -50f;
-        }
+            if (PlayerBodyPartsHandler.isRightDirection)
+            {
+                minOffsetAngle = 0f;
+                maxOffsetAngle = 50f;
+            }
+            else
+            {
+                minOffsetAngle = -50f;
+                maxOffsetAngle = -50f;
+            }
 
-        if (TadaInput.IsMouseActive)
-            clampAngle = Mathf.Clamp(CrosshairMouse.AimDirection.y * rate, minOffsetAngle, maxOffsetAngle);
-        else
-            clampAngle = Mathf.Clamp(CrosshairJoystick.AimDirection.y * rate, minOffsetAngle, maxOffsetAngle);
+            if (TadaInput.IsMouseActive)
+                clampAngle = Mathf.Clamp(crosshairMouse.AimDirection.y * rate, minOffsetAngle, maxOffsetAngle);
+            else
+                clampAngle = Mathf.Clamp(CrosshairJoystick.AimDirection.y * rate, minOffsetAngle, maxOffsetAngle);
 
-        transform.rotation = shoulderMain.rotation;
-        transform.rotation = Quaternion.Euler(0, 0, transform.eulerAngles.z + clampAngle);
+            transform.rotation = shoulderMain.rotation;
+            transform.rotation = Quaternion.Euler(0, 0, transform.eulerAngles.z + clampAngle);
+        }
     }
+        
 }

@@ -16,12 +16,16 @@ public class AnimationHandler : MonoBehaviour
     [SerializeField] private bool getAnimInChild = false;
     protected Animation anim;
 
+    protected CrosshairMouse crosshairMouse;
+
     protected virtual void Awake()
     {
         if (!getAnimInChild)
             TryGetComponent(out anim);
         else
             anim = GetComponentInChildren<Animation>();
+
+        crosshairMouse = GetComponentInChildren<CrosshairMouse>();
     }
 
     protected virtual void PlayAnimation(string name)

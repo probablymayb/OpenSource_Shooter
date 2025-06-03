@@ -127,18 +127,13 @@ public class Weapon_ChargeContinuousShooting : Weapon
             bool isRight = PlayerBodyPartsHandler.isRightDirection;
             CameraShake.Shake(duration: 0.075f, shakeAmount: 0.1f, decreaseFactor: 3f);
 
-            primaryProjectile.SetActive(true);
+            //primaryProjectile.SetActive(true);
 
-            if (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame)
-            {
-                primaryProjectile.Fire(isRight);
-            }
-            else
-            {
-                primaryProjectile.Fire();
-            }
+            primaryProjectile.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame);
 
-            primaryProjectile = null;
+            primaryProjectile.Fire(isRight);
+
+            //primaryProjectile = null;
             canUse = false;
         }
     }
@@ -199,16 +194,10 @@ public class Weapon_ChargeContinuousShooting : Weapon
             secondaryProjectile = bullet.GetComponent<Projectile>();
         }
 
-        secondaryProjectile.SetActive(true);
+        //secondaryProjectile.SetActive(true);
 
-        if (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame)
-        {
-            secondaryProjectile.Fire(isRight);
-        }
-        else
-        {
-            secondaryProjectile.Fire();
-        }
+        secondaryProjectile.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame);
+        secondaryProjectile.Fire(isRight);
         
         secondaryProjectile = null;
         chargingPFX.transform.localScale = Vector2.one;

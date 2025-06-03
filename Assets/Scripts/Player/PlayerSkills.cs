@@ -15,6 +15,14 @@ public class PlayerSkills : MonoBehaviour
 
     private const float DASH_DURATION = 0.2f;
 
+    [Header("Dash Settings")]
+    [SerializeField] private float dashCooldown = 2f; // 대시 쿨타임
+    private float lastDashTime = -999f; // 마지막 대시 시간
+
+    // UI 표시용
+    public float DashCooldownRemaining => Mathf.Max(0, dashCooldown - (Time.time - lastDashTime));
+    public bool IsDashReady => Time.time >= lastDashTime + dashCooldown;
+
     private void Awake()
     {
         _AfterImageHandler = FindObjectOfType<AfterImageHandler>();
@@ -31,8 +39,16 @@ public class PlayerSkills : MonoBehaviour
 
     public void Dash()
     {
-        if (canDash)
+        // 쿨타임 체크 추가
+        if (canDash && Time.time >= lastDashTime + dashCooldown)
+        {
+            lastDashTime = Time.time; // 대시 시간 기록
             StartCoroutine(CO_Dash());
+        }
+        else if (Time.time < lastDashTime + dashCooldown)
+        {
+            Debug.Log($"Dash on cooldown! {DashCooldownRemaining:F1}s remaining");
+        }
     }
 
     // Used a coroutine to have a WaitForSeconds method to set canDash to true after a given time.

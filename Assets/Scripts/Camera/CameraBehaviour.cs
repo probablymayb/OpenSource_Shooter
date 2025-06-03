@@ -25,6 +25,13 @@ public class CameraBehaviour : MonoBehaviour
 
     private Vector2 offset;
 
+    private CrosshairMouse crosshairMouse;
+
+    public void Awake()
+    {
+        crosshairMouse = GetComponentInChildren<CrosshairMouse>();
+    }
+
     private void FixedUpdate()
     {
         if (target == null)
@@ -40,7 +47,7 @@ public class CameraBehaviour : MonoBehaviour
         {
             // Offset the camera to look at the position where the crosshair is pointing at.
             if (TadaInput.IsMouseActive)
-                offset = Vector2.ClampMagnitude(CrosshairMouse.AimDirection, _MaxOffset);
+                offset = Vector2.ClampMagnitude(crosshairMouse.AimDirection, _MaxOffset);
             else
                 offset = TadaInput.AimAxisSmoothInput * _MaxOffset;
         }

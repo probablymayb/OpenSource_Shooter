@@ -17,6 +17,20 @@ public class Weapon_ShootProjectileCanCharge : Weapon
     // ---- https://twitter.com/tadadosi ----
     // --------------------------------------
 
+    protected float CHARGE_DURATION
+    {
+        get { return _CHARGE_DURATION; }
+        private set { _CHARGE_DURATION = value; }
+    }
+    [SerializeField] protected float _CHARGE_DURATION;
+
+    protected float CHARGE_DURATION_Default
+    {
+        get { return _CHARGE_DURATION_Default; }
+        private set { _CHARGE_DURATION_Default = value; }
+    }
+    [SerializeField] protected float _CHARGE_DURATION_Default;
+
     [TextArea(5, 10)]
     public string notes = "This is a derived class from the base class Weapon. It has a primary action to shoot projectiles " +
         "based on a UseRate value and a secondary action with a timer that after reaching its duration will shoot a secondary projectile.";
@@ -28,22 +42,38 @@ public class Weapon_ShootProjectileCanCharge : Weapon
     public GameObject chargingPFX;
     public SoundHandlerLocal chargingSFX;
 
-    [SerializeField] private Animator animator;
+    [SerializeField] protected Animator animator;
 
     private enum WeaponAction { Idle = 0, BasicShot = 1, Charging = 2, ChargedShot = 3 }
 
-    private Projectile primaryProjectile;
-    private Projectile secondaryProjectile;
+    protected Projectile primaryProjectile;
+    protected Projectile secondaryProjectile;
     private bool isReceivingInput = false;
     private bool isCharging = false;
     private float chargingTime;
 
-    private const float CHARGE_DURATION = 2f;
+    //카메라 진동 설정(duration, shakeAmount, decreaseFactor)
+    protected Vector3 CS_P;
+    protected Vector3 CS_SC;
+    protected Vector3 CS_SF;
+
+    public override void stop()
+    {
+        base.stop();
+        isReceivingInput = false;
+        OnChargeCancel();
+    }
 
     protected override void Awake()
     {
+        _CHARGE_DURATION_Default = 2f;
         base.Awake();
-        useRateValues = new float[] { 0.125f, 0.05f };
+        //useRateValues = new float[] { 0.125f, 0.05f };
+        //TryGetComponent(out animator);
+
+        CS_P = new Vector3(0.075f, 0.1f, 3f);
+        CS_SC = new Vector3(0, 0.065f, 1f);
+        CS_SF = new Vector3(0.2f, 1f, 3f);
     }
 
     protected override void Update()
@@ -71,10 +101,26 @@ public class Weapon_ShootProjectileCanCharge : Weapon
             OnChargeCancel();
     }
 
+    protected override void calculateUseRate()
+    {
+        base.calculateUseRate();
+        _CHARGE_DURATION = _CHARGE_DURATION_Default / useRateValues[useRateIndex];
+
+        /////////////////////////////////////////////////////
+        /// 애니메이션 구현?
+        /// 발사 속도가 빠르면 애니메이션도 똑같이 빠르게 재생되도록 설정
+        /// 기본 발사는 속도가 느려도 최소치가 있음
+        /*
+        //change animation speed from default speed
+        anim.SetAnimationSpeed("BasicShot", (_UseRate<0.125f)?(0.125f/_UseRate):(1));
+        anim.SetAnimationSpeed("Charging", 2f/_CHARGE_DURATION);
+        anim.SetAnimationSpeed("ChargedShot", 2f/_CHARGE_DURATION);
+        */
+    }
+
     private void OnEnable()
     {
         SpawnProjectiles();
-        Debug.Log("총 쏘기 OnEnable");
     }
 
     protected override void OnCanUse()
@@ -122,43 +168,54 @@ public class Weapon_ShootProjectileCanCharge : Weapon
         }
     }
 
+    //발사 함수(상속받은 클래스가 수정 가능)
+    protected virtual void PrimaryFire(bool isRight)
+    {
+        primaryProjectile.Fire(isRight);
+    }
+    protected virtual void SecondaryFire(bool isRight)
+    {
+        secondaryProjectile.Fire(isRight);
+    }
+
     public override void PrimaryAction(bool value)
     {
         base.PrimaryAction(value);
 
-        if(primaryProjectile == null && canUse)
+        if (primaryProjectile == null && canUse)
         {
             string prefabName = basicProjectilePrefab.name;
             GameObject bullet = PhotonNetwork.Instantiate("Projectiles/" + prefabName, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
             bullet.transform.SetParent(projectileSpawnPoint);
             primaryProjectile = bullet.GetComponent<Projectile>();
+            bullet.gameObject.tag = "First_PrimaryProjectile";
         }
 
         // Can be executed only if there is a projectile available and canUse is true.
         if (primaryProjectile != null && canUse)
         {
+            bool isRight = PlayerBodyPartsHandler.isRightDirection;
             // Play the basic animation if WeaponAnim_ShootProjectileCanCharge is available.
             animator.SetInteger("WeaponAction", (int)WeaponAction.BasicShot);
 
             // Make the camera Shake.
-            CameraShake.Shake(duration: 0.075f, shakeAmount: 0.1f, decreaseFactor: 3f);
+            CameraShake.Shake(CS_P.x, CS_P.y, CS_P.z);
 
             // Call the method Fire on the projectile to launch it towards the crosshair direction.
-            bool isRight = PlayerBodyPartsHandler.isRightDirection;
+
+            //투사체를 직접 발사하지 않음, 여전히 비활성화
             // Enable the projectile.
-            primaryProjectile.SetActive(true);
+            //primaryProjectile.SetActive(true);
 
-            if (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame)
-            {
-                primaryProjectile.Fire(isRight);
-            }
-            else
-            {
-                primaryProjectile.Fire();
-            }
+            //네트워크에 있을시 발사 방향을 건네줌?
+            primaryProjectile.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame);
 
+            //발사 함수 호출
+            PrimaryFire(isRight);
+
+            //투사체를 삭제하지 않음
             // We make it null to give room to a new instantiated projectile.
-            primaryProjectile = null;
+            //primaryProjectile = null;
 
             // We make it false to execute the base Update actions which makes it true again after UseRate duration is reached,
             // which then calls the method OnCanUse() that's used to spawn new projectiles and to return to the Idle anim.
@@ -219,7 +276,7 @@ public class Weapon_ShootProjectileCanCharge : Weapon
 
             // NOTE: Weapon Charging Shake. Right now this shake behaviour will override the OnChargingEnd shake.
             // In order to fix this I need to add timer to stop the charging option from being rapidly reused.
-            CameraShake.Shake(duration: CHARGE_DURATION, shakeAmount: 0.065f, decreaseFactor: 1f);
+            CameraShake.Shake(CHARGE_DURATION, CS_SC.y, CS_SC.z);
 
             // Enable the charging visual effects.
             chargingPFX.SetActive(true);
@@ -256,7 +313,7 @@ public class Weapon_ShootProjectileCanCharge : Weapon
         chargingTime = 0.0f;
 
         // Make the camera Shake by a greater value.
-        CameraShake.Shake(duration: 0.2f, shakeAmount: 1f, decreaseFactor: 3f);
+        CameraShake.Shake(CS_SF.x, CS_SF.y, CS_SF.z);
 
         // Call the method Fire on the projectile to launch it towards the crosshair direction.
 
@@ -270,25 +327,22 @@ public class Weapon_ShootProjectileCanCharge : Weapon
             secondaryProjectile = bullet.GetComponent<Projectile>();
         }
 
-        secondaryProjectile.SetActive(true);
+        //secondaryProjectile.SetActive(true);
 
-        if (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame)
-        {
-            secondaryProjectile.Fire(isRight);
-        }
-        else
-        {
-            secondaryProjectile.Fire();
-        }
+        secondaryProjectile.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame);
+        SecondaryFire(isRight);
 
         // Make it null to give room to a new instantiated projectile.
-        secondaryProjectile = null;
+        //secondaryProjectile = null;
 
         // Reset the scale of the charging visual fx.
         chargingPFX.transform.localScale = Vector2.one;
 
         // Disable the charge visual fx.
         chargingPFX.SetActive(false);
+
+        // Stop the charging SoundHandlerLocal sounds.
+        chargingSFX.StopSound();
     }
 
     /// <summary>

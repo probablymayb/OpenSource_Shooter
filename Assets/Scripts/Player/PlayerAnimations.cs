@@ -49,9 +49,9 @@ public class PlayerAnimations : AnimationHandler
         bool movingRight = moveInput.x > 0 || moveInput.y > 0;
         bool movingLeft = moveInput.x < 0 || moveInput.y < 0;
 
-        bool lookingRight = (TadaInput.IsMouseActive && CrosshairMouse.AimDirection.x > 0) ||
+        bool lookingRight = (TadaInput.IsMouseActive && crosshairMouse.AimDirection.x > 0) ||
                             (!TadaInput.IsMouseActive && CrosshairJoystick.AimDirection.x > 0);
-        bool lookingLeft = (TadaInput.IsMouseActive && CrosshairMouse.AimDirection.x < 0) ||
+        bool lookingLeft = (TadaInput.IsMouseActive && crosshairMouse.AimDirection.x < 0) ||
                             (!TadaInput.IsMouseActive && CrosshairJoystick.AimDirection.x < 0);
 
         if (movingRight && lookingRight || movingLeft && lookingLeft)

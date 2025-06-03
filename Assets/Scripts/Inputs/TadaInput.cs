@@ -42,7 +42,7 @@ public class TadaInput : MonoBehaviour
     { 
         None, MoveLeft, MoveRight, MoveUp, MoveDown, PrimaryAction, SecondaryAction,
         PreviousWeapon, NextWeapon, PreviousUseRate, NextUseRate, Xbox360RightTrigger,
-        Xbox360LeftTrigger, MouseAnyMovement, Dash, Pause, Tab, Count,
+        Xbox360LeftTrigger, MouseAnyMovement, Dash, Pause, Tab, GetItem,
     }
     private static ThisKey[] currentKeys;
     private static ThisKey[] currentKeysDown;
@@ -226,6 +226,9 @@ public class TadaInput : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Tab))
             StoreCurrentKeyDown(ThisKey.Tab);
 
+        if (Input.GetKeyDown(KeyCode.F))
+            StoreCurrentKeyDown(ThisKey.GetItem);
+
         #endregion
 
         #region ------------------------------------------ STORE CURRENT KEY UP
@@ -324,7 +327,7 @@ public class TadaInput : MonoBehaviour
 
     private static void InitializeInputArrays()
     {
-        int length = (int)ThisKey.Count + 1;
+        int length = System.Enum.GetValues(typeof(ThisKey)).Length;
         currentKeys = new ThisKey[length];
         currentKeysDown = new ThisKey[length];
         currentKeysUp = new ThisKey[length];
