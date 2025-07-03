@@ -4,6 +4,7 @@ using Photon.Realtime;
 using ExitGames.Client.Photon;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks.Triggers;
+using System.Xml.Linq;
 
 /// <summary>
 /// Photon 대기방에서 아바타 생성 및 준비 상태 동기화를 관리하는 매니저 클래스
@@ -14,22 +15,29 @@ public class WaitingRoomPhotonManager : MonoBehaviourPunCallbacks, IScenePhotonM
     [SerializeField] private Transform myAvatarParent;
     [SerializeField] private Transform opponentAvatarParent;
 
+    public static WaitingRoomPhotonManager WaitingRoom {  get; private set; }
+    
     private Dictionary<int, GameObject> _avatarMap = new Dictionary<int, GameObject>();
+
     private const string READY_KEY = "IsReady";
+
     private bool _isReady = false;
 
     public void Awake()
     {
+        if (WaitingRoom == null) WaitingRoom = this;
+        else Destroy(gameObject);
+
         waitingRoomUIController.ReadyButton.onClick.AddListener(OnReadyClicked);
         InitializeSceneObject();
     }
 
-    /// <summary>
-    /// 버튼 리스너 등록 및 초기 아바타 생성
-    /// </summary>
-    public void Initialize()
+    private void OnDestroy()
     {
-
+        if (WaitingRoom == this)
+        {
+            WaitingRoom = null;
+        }
     }
 
     /// <summary>
