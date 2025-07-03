@@ -7,24 +7,28 @@ using System.Collections.Generic;
 public class InGamePhotonManager : MonoBehaviourPunCallbacks, IScenePhotonManager
 {
     [SerializeField] private GameObject mapRoot;
+
     private Dictionary<int, GameObject> _avatarMap = new Dictionary<int, GameObject>();
 
-    public void Start()
+    public static InGamePhotonManager InGame { get; private set; }
+
+    private void Awake()
     {
+        if (InGame == null) InGame = this;
+        else Destroy(gameObject); // 중복 방지
+
         if (PhotonNetwork.IsConnected && PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom)
         {
             InitializeSceneObject();
         }
     }
 
-    public void Initialize()
+    private void OnDestroy()
     {
-        
-    }
-
-    public void Release()
-    {
-
+        if (InGame == this)
+        {
+            InGame = null;
+        }
     }
 
     public void InitializeSceneObject()
@@ -95,5 +99,20 @@ public class InGamePhotonManager : MonoBehaviourPunCallbacks, IScenePhotonManage
             Destroy(avatar);
             _avatarMap.Remove(otherPlayer.ActorNumber);
         }
+    }
+
+    public GameObject GetMyAvatar()
+    {
+        foreach(var avatar in _avatarMap.Values)
+        {
+            if(avatar.TryGetComponent(out PhotonView pv) && pv.IsMine)
+            {
+                Debug.Log("내 아바타 발견: " + avatar);
+                return avatar;
+            }
+        }
+
+        Debug.LogWarning("내 아바타를 발견하지 못했습니다.");
+        return null;
     }
 }
