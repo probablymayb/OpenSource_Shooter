@@ -159,7 +159,6 @@ public class PlayerBodyPartsHandler : MonoBehaviour, IPunObservable
             case Direction.Left:
                 if (isRightDirection)
                 {
-                    Debug.Log("왼쪽으로 플립");
                     lookAtHandler.FlipAxis(true);
 
                     if (hips != null)
@@ -183,7 +182,6 @@ public class PlayerBodyPartsHandler : MonoBehaviour, IPunObservable
             case Direction.Right:
                 if (!isRightDirection)
                 {
-                    Debug.Log("오른쪽으로 플립");
                     lookAtHandler.FlipAxis(false);
 
                     if (hips != null)
@@ -226,8 +224,6 @@ public class PlayerBodyPartsHandler : MonoBehaviour, IPunObservable
         else
         {
             bool isLeftDirection = (bool)stream.ReceiveNext();
-
-            Debug.Log("isLeftDirection: " + isLeftDirection);
 
             isRightDirection = isLeftDirection;
             SetBodyPartsDirection(isLeftDirection ? Direction.Left : Direction.Right);
