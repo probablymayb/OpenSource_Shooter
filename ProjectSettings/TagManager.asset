@@ -9,6 +9,7 @@ TagManager:
   - First_PrimaryProjectile
   - clone
   - Bullet
+  - hpBar
   layers:
   - Default
   - TransparentFX
