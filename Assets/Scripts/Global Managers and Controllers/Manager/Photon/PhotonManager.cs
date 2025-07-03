@@ -15,24 +15,11 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IManager
     public enum GamePhase { None, Matching, Waiting, InGame};
     public static GamePhase _currentPhase = GamePhase.None;
 
-    public static WaitingRoomPhotonManager WaitingRoom { get; } = new WaitingRoomPhotonManager();
-    public static InGamePhotonManager InGame { get; } = new InGamePhotonManager();
+
 
     public void Initialize()
     {
         ConnectToPhoton();
-
-        //포톤에서 관리될 세부 포톤 클래스 매니저들 Initialize();
-
-        var photonManagers = new List<IScenePhotonManager>
-        {
-            WaitingRoom, InGame,
-        };
-
-        foreach(var manager in photonManagers)
-        {
-            manager.Initialize();
-        }
     }
 
     public void Release()
