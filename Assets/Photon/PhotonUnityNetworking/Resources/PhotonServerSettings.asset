@@ -43,6 +43,7 @@ MonoBehaviour:
   - RPC_Fire_Cloned
   - OnRespawn
   - TakeDamage
+  - SyncHp
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0
