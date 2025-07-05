@@ -42,7 +42,7 @@ public class PlayerShoulderSecondary : MonoBehaviour
 
     private void Update()
     {
-        if(PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame)
+        if(PhotonNetwork.InRoom && PhotonManager._currentPhase == GamePhase.InGame)
         {
             if (!isUpdateCalledLocally)
                 return;
@@ -54,7 +54,7 @@ public class PlayerShoulderSecondary : MonoBehaviour
     public void UpdateRotation()
     {
         // I got this hardcoded values after testing them in the Inspector.
-        if (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame)
+        if (PhotonNetwork.InRoom && PhotonManager._currentPhase == GamePhase.InGame)
         {
             if (PlayerBodyPartsHandler.isRightDirection)
             {

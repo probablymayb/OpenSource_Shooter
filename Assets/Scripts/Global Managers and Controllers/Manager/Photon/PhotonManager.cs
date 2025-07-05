@@ -3,6 +3,8 @@ using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
 
+public enum GamePhase { None, ServerReady, Lobby, Matching, Waiting, InGame };
+
 public class PhotonManager : MonoBehaviourPunCallbacks, IManager
 {
     [Header("Settings")]
@@ -12,7 +14,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IManager
 
     private const string _waitingRoomSceneName = "WaitingRoomScene";
     private const string _IngameSceneName = "InGameScene";
-    public enum GamePhase { None, Matching, Waiting, InGame};
+
     public static GamePhase _currentPhase = GamePhase.None;
 
 
@@ -46,12 +48,14 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IManager
     public override void OnConnectedToMaster()
     {
         Debug.Log("Photon 마스터 서버 연결됨");
+        SetPhase(GamePhase.ServerReady);
         PhotonNetwork.JoinLobby();
     }
 
     public override void OnJoinedLobby()
     {
         Debug.Log("로비 입장 완료");
+        SetPhase(GamePhase.Lobby);
         // UI에서 매칭 버튼 활성화 등 처리
     }
     #endregion
@@ -64,7 +68,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IManager
     {
         Debug.Log("랜덤 매칭 시도 중...");
         PhotonNetwork.JoinRandomRoom();
-        _currentPhase = GamePhase.Matching;
+        SetPhase(GamePhase.Matching);
     }
 
     public override void OnJoinRandomFailed(short returnCode, string message)
@@ -89,13 +93,13 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IManager
         if (PhotonNetwork.CurrentRoom.PlayerCount == maxPlayers)
         {
             // 이미 다른 사람이 있어 바로 매칭 완료 → 대기방 씬 이동
-            _currentPhase = GamePhase.InGame;
+            SetPhase(GamePhase.InGame);
             PhotonNetwork.LoadLevel(_waitingRoomSceneName);
         }
         else
         {
             // 1명만 입장했을 경우 → 대기
-            _currentPhase = GamePhase.Waiting;
+            SetPhase(GamePhase.Waiting);
             Debug.Log("상대방 기다리는 중...");
         }
     }
@@ -106,7 +110,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IManager
 
         if (PhotonNetwork.CurrentRoom.PlayerCount == maxPlayers)
         {
-            _currentPhase = GamePhase.InGame;
+            SetPhase(GamePhase.InGame);
             PhotonNetwork.LoadLevel(_waitingRoomSceneName);
         }
     }
@@ -114,7 +118,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IManager
 
     public void StartBattle()
     {
-        _currentPhase = GamePhase.InGame;
+        SetPhase(GamePhase.InGame);
         PhotonNetwork.LoadLevel(_IngameSceneName);
 
         Debug.Log("1:1 배틀 시작");
@@ -123,5 +127,24 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IManager
     public override void OnDisconnected(DisconnectCause cause)
     {
         Debug.LogError($"Photon 연결 끊김: {cause}");
+    }
+
+    private static void SetPhase(GamePhase phase)
+    {
+        _currentPhase = phase;
+
+        var matchingPresenter = GameManager.UI.GetScenePresenter<MatchingPopupUIPresenter>("StartUI");
+
+        if( matchingPresenter != null )
+        {
+            Debug.Log($"GamePhase 변경 => {phase}");
+            Debug.Log($"{matchingPresenter.ToString()}에 값 전송");
+            matchingPresenter.OnPhaseChanged(phase);
+        }
+        else
+        {
+            Debug.LogError($"Presenter MatchingPopupUIPresenter를 찾을 수 없음");
+        }
+        
     }
 }

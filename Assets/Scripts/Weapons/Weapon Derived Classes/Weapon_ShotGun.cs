@@ -180,7 +180,7 @@ public class Weapon_ShotGun : Weapon
             Projectile proj = bullet.GetComponent<Projectile>();
             proj.Speed = 20f * Random.Range(0.9f, 1.1f);
             proj.setVolume(2f / 3);
-            proj.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame);
+            proj.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == GamePhase.InGame);
             proj.Fire(Random.Range(-10f, 10f), isRight);  // 각도 차이
         }
     }
@@ -195,7 +195,7 @@ public class Weapon_ShotGun : Weapon
             Projectile proj = bullet.GetComponent<Projectile>();
             proj.Speed = 20f * Random.Range(0.9f, 1.1f);
             proj.setVolume(2f / 5);
-            proj.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame);
+            proj.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == GamePhase.InGame);
             proj.Fire(Random.Range(-20f, 20f), isRight);
         }
     }
