@@ -1,5 +1,17 @@
 # SW 오픈소스 기반 멀티플레이어 슈팅게임 개발자 가이드
 
+## 목차
+
+- [1. 게임 실행 및 테스트 시 유의사항](#1-게임-실행-및-테스트-시-유의사항)
+- [2. GameManager 구성 및 매니저 구조](#2-gamemanager-구성-및-매니저-구조)
+- [3. UI 관련 가이드 (MVP패턴, UIManager)](#3-ui-관련-가이드-mvp패턴-uimanager)
+- [4. ResourceManager 가이드](#4-resourcemanager-가이드)
+- [5. PhotonManager 가이드 (멀티플레이 시스템)](#5-photonmanager-가이드-멀티플레이-시스템)
+- [6. Photon 사용 가이드 (네트워크 동기화 및 RPC)](#6-photon-사용-가이드-네트워크-동기화-및-rpc)
+- [7. 애니메이션 시스템 가이드](#7-애니메이션-시스템-가이드)
+- [8. 무기 시스템 전용 리소스 로딩 함수 가이드 (Weaponcs)](#8-무기-시스템-전용-리소스-로딩-함수-가이드-weaponcs)
+- [9. 신규 무기 기초 클래스: ShotGun](#9-신규-무기-기초-클래스-shotgun)
+- [10. 아이템 무기 교체 및 상호작용 시스템](#10-아이템-무기-교체-및-상호작용-시스템)
 
 ## 1. 게임 실행 및 테스트 시 유의사항
 
@@ -39,16 +51,90 @@ private static void Relese()
 * 각 매니저는 `static`으로 선언되므로 `GameManager.Data.기능()`처럼 접근합니다.
 * 씬 전환 시에도 유지되며 전역에서 재사용 가능합니다.
 
-## 3. UI 관련 가이드 (UIManager, IPopupPresenter)
+## 3. UI 관련 가이드 (MVP패턴, UIManager)
 
-* `UIManager`는 팝업 UI의 생성, 표시, 숨김, 스택 관리를 담당합니다.
+확장성과 유지보수성을 고려하여 **MVP (Model-View-Presenter) 패턴**을 UI 시스템에 적용
 
-| 메서드                              | 설명                       |
-| -------------------------------- | ------------------------ |
-| ShowPopup(string popupName)      | 비동기로 팝업 생성 및 표시 (재사용 가능) |
-| HidePopup(IPopupPresenter popup) | 팝업 스택에서 제거 및 숨김          |
-| IsPopupStack(string popupName)   | 팝업 스택에 해당 이름 존재 여부 확인    |
-| CreatePopup(string popupName)    | 주소 기반으로 팝업 오브젝트 생성       |
+#### 구성 요소 역할
+
+| 구성 요소     | 설명                                                                 |
+|--------------|----------------------------------------------------------------------|
+| `ModelBase`  | UI 상태 데이터 보관. DTO 기반 이벤트를 발생시켜 Presenter에 변경사항을 전달함 |
+| `ViewBase<T>`| 사용자 입력(UI 요소)을 Presenter로 전달하고, Presenter로부터 UI 갱신 요청을 받음 |
+| `PresenterBase<T>` | View와 Model을 연결하는 중재자. 이벤트 등록, 데이터 전달, View 업데이트를 담당 |
+
+이 구조를 통해 다음과 같은 효과를 얻을 수 있다:
+
+- UI 로직과 상태 데이터의 분리 → 유지보수 용이
+- Presenter를 통해 외부에서 UI 제어 → 명확한 책임 구분
+- 타입 안전한 이벤트 흐름 → 컴파일 타임에서 오류 방지
+
+---
+#### PresenterBase 주요 메서드
+
+| 메서드 정의 | 설명 |
+|-------------|------|
+| `AddListener<TDto>(Enum, UnityAction<TDto>)` | 특정 이벤트에 DTO 기반 리스너 등록 |
+| `TriggerEvent<TDto>(Enum, TDto dto)`         | DTO 전달과 함께 이벤트 발생 |
+| `TriggerEvent(Enum)`                         | 매개변수 없는 이벤트 발생 (Unit.Default 사용) |
+
+---
+
+#### ViewBase 주요 메서드
+
+| 메서드 정의 | 설명 |
+|-------------|------|
+| `AddUIListener<T, TDto>(uiElement, eventEnum, callback)` | UI 요소(Button, Slider 등)와 이벤트 연결 |
+| `UpdateView(TModel model)`  | 전체 View 갱신 (모델 초기 상태 반영) |
+| `UpdateView<TDto>(TDto dto)`| 부분 View 갱신 (DTO 이벤트 기반) |
+
+---
+
+#### ModelBase 주요 메서드
+
+| 메서드 정의 | 설명 |
+|-------------|------|
+| `TriggerEvent<TDto>(Enum, TDto dto)`         | DTO 전달과 함께 이벤트 발생 |
+| `AddListener<TDto>(Enum, UnityAction<TDto>)` | Presenter 또는 View로부터 DTO 기반 리스너 등록 |
+| `ClearListener()`                            | 모든 리스너 초기화 (씬 전환 등) |
+
+---
+#### 간단 예시 - 볼륨 조절
+```csharp
+// View: 슬라이더 값 변경 시 presenter에게 이벤트 전달
+AddUIListener<Slider, float>(bgmSlider, SettingEvent.OnVolumeChange, (evt, val) => {
+    presenter.TriggerEvent(evt, new VolumeSettingDto(val, sfxSlider.value));
+});
+
+// Presenter: 이벤트 등록
+AddListener<VolumeSettingDto>(SettingEvent.OnVolumeChange, dto => {
+    model.SetVolume(dto);
+});
+
+model.AddListener<VolumeSettingDto>(SettingEvent.OnVolumeChange, dto => {
+    view.UpdateView(dto);
+});
+
+// Model: 값 저장 및 이벤트 트리거
+public void SetVolume(VolumeSettingDto dto)
+{
+    currentVolume = dto;
+    TriggerEvent(SettingEvent.OnVolumeChange, currentVolume);
+}
+
+```
+---
+* `UIManager`는 전체 Presenter를 등록/조회하고, 팝업을 스택 기반으로 생성, 표시, 숨김 처리하는 중심 역할을 한다.
+
+| 메서드                              | 설명                                                |
+|-----------------------------------|-----------------------------------------------------|
+| `FindAllPresenter()`              | 현재 씬에 존재하는 모든 Presenter 수집              |
+| `ShowPopup(string)`              | 팝업 비동기 생성 및 표시 (재사용 포함)              |
+| `ShowPopup<T>(string)`           | 생성과 동시에 제네릭 Presenter 반환                 |
+| `HidePopup()`                    | 가장 최근의 팝업을 숨김                             |
+| `HidePopup(IPresenter)`         | 특정 팝업 인스턴스를 숨김                           |
+| `GetScenePresenter<T>(string)`   | 특정 Presenter 반환                                 |
+| `GetPopupPresenter(string)`      | 현재 팝업 스택에 존재하는 특정 이름의 팝업 반환      |
 
 ```csharp
 void GetPlayerInput()
@@ -67,14 +153,11 @@ void GetPlayerInput()
 ### 연동 조건
 
 * 팝업 프리팹은 ResourceManager를 통해 로드 가능해야 함
-* `IPopupPresenter`를 구현한 MonoBehaviour 컴포넌트를 포함해야 함
 * 최소한 `ShowView()`, `HideView()` 메서드를 구현해야 함
 
 ### 추후 확장 가능 요소
 
 * PopupType 기반 분기 확장
-* MVP 구조 적용 시 `IPresenter`로 일반화 가능
-* PresenterBase.cs 등을 이용한 이벤트 연동 구조 가능
 
 ## 4. ResourceManager 가이드
 
