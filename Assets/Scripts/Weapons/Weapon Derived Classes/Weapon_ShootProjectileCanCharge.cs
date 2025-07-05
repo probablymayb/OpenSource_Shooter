@@ -208,7 +208,7 @@ public class Weapon_ShootProjectileCanCharge : Weapon
             //primaryProjectile.SetActive(true);
 
             //네트워크에 있을시 발사 방향을 건네줌?
-            primaryProjectile.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame);
+            primaryProjectile.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == GamePhase.InGame);
 
             //발사 함수 호출
             PrimaryFire(isRight);
@@ -329,7 +329,7 @@ public class Weapon_ShootProjectileCanCharge : Weapon
 
         //secondaryProjectile.SetActive(true);
 
-        secondaryProjectile.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame);
+        secondaryProjectile.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == GamePhase.InGame);
         SecondaryFire(isRight);
 
         // Make it null to give room to a new instantiated projectile.

@@ -129,7 +129,7 @@ public class Weapon_ChargeContinuousShooting : Weapon
 
             //primaryProjectile.SetActive(true);
 
-            primaryProjectile.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame);
+            primaryProjectile.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == GamePhase.InGame);
 
             primaryProjectile.Fire(isRight);
 
@@ -196,7 +196,7 @@ public class Weapon_ChargeContinuousShooting : Weapon
 
         //secondaryProjectile.SetActive(true);
 
-        secondaryProjectile.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame);
+        secondaryProjectile.isRPCFire = (PhotonNetwork.InRoom && PhotonManager._currentPhase == GamePhase.InGame);
         secondaryProjectile.Fire(isRight);
         
         secondaryProjectile = null;
