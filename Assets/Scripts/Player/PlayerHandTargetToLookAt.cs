@@ -38,7 +38,7 @@ public class PlayerHandTargetToLookAt : MonoBehaviour
 
     private void Update()
     {
-        /*if (PhotonNetwork.InRoom && PhotonManager._currentPhase == PhotonManager.GamePhase.InGame)
+        /*if (PhotonNetwork.InRoom && PhotonManager._currentPhase == GamePhase.InGame)
         {
             float clampX = 0.0f;
             float clampY = 0.0f;

@@ -36,7 +36,6 @@ public class CameraBehaviour : MonoBehaviour
     {
         if (target == null)
         {
-            Debug.LogWarning(gameObject.name + ": Target missing!");
             return;
         }
 
